@@ -1,136 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:background="@color/white"
+    android:orientation="vertical"
     tools:context=".SettingsActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/back_b"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/back_b"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:backgroundTint="@color/white"
-            android:gravity="start"
-            android:foreground="?attr/selectableItemBackground"
-            android:outlineSpotShadowColor="@color/white"
-            app:icon="@drawable/light_mode"
-            app:iconPadding="0dp"
-            app:iconTint="@color/YP_black" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:paddingHorizontal="12dp"
-            android:text="@string/settings"
-            android:textAppearance="@style/content" />
-    </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/dark_theme"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginStart="@dimen/settings_marginStar"
-            android:layout_marginVertical="@dimen/settings_marginVertical"
-            android:text="@string/dark_theme"
-            android:textAppearance="@style/content_settings" />
-
-        <androidx.appcompat.widget.SwitchCompat
-            android:layout_width="56dp"
-            android:layout_height="40dp"
-            android:layout_gravity="end"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="6dp"
-            app:trackTint="@color/grey"/>
-    </FrameLayout>
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        app:navigationIcon="@drawable/light_mode"
+        app:title="@string/settings"
+        app:titleTextAppearance="@style/content"
+        app:contentInsetStartWithNavigation="12dp"/>
 
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/dark_theme_switch"
+        style="@style/SettingsSwitchStyle"
+        android:layout_marginTop="@dimen/main_marginTop"
+        android:text="@string/dark_theme"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginVertical="@dimen/settings_marginVertical"
-            android:layout_marginStart="@dimen/settings_marginStar"
-            android:text="@string/share"
-            android:textAppearance="@style/content_settings" />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/icon_share"
+        style="@style/SettingsItemStyle"
+        android:drawableEnd="@drawable/ic_share"
+        android:text="@string/share"/>
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end"
-            android:layout_marginTop="@dimen/settings_marginTop"
-            android:layout_marginEnd="@dimen/settings_marginEnd"
-            android:src="@drawable/ic_share"
-            android:textColor="@color/grey" />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/icon_support"
+        style="@style/SettingsItemStyle"
+        android:drawableEnd="@drawable/ic_support"
+        android:text="@string/support"/>
 
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/icon_arrow_forward"
+        style="@style/SettingsItemStyle"
+        android:drawableEnd="@drawable/ic_arrow_forward"
+        android:text="@string/arrow_forward"/>
 
-    </FrameLayout>
-
-    <FrameLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_marginStart="@dimen/settings_marginStar"
-        android:layout_marginVertical="@dimen/settings_marginVertical"
-        android:text="@string/support"
-        android:textAppearance="@style/content_settings" />
-
-    <ImageView
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="end"
-        android:layout_marginTop="@dimen/settings_marginTop"
-        android:layout_marginEnd="@dimen/settings_marginEnd"
-        android:textColor="@color/grey"
-        android:src="@drawable/ic_support" />
-
-
-</FrameLayout>
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginStart="@dimen/settings_marginStar"
-            android:layout_marginVertical="@dimen/settings_marginVertical"
-            android:text="@string/arrow_forward"
-            android:textAppearance="@style/content_settings" />
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="end"
-            android:layout_marginTop="@dimen/settings_marginTop"
-            android:layout_marginEnd="@dimen/settings_marginEnd"
-            android:textColor="@color/grey"
-            android:src="@drawable/ic_arrow_forward" />
-
-
-    </FrameLayout>
 
 </LinearLayout>
-

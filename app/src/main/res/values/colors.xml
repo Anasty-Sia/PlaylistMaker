@@ -5,5 +5,7 @@
     <color name="YP_black">#1A1B22</color>
     <color name="blue">#3F8AE0</color>
     <color name="grey">#AEAFB4</color>
+    <color name="switch_thumb_active_color">#1CD760</color>
+    <color name="switch_thumb_inactive_color">#979797</color>
 
 </resources>
