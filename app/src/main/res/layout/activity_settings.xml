@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".SettingsActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/back_b"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        app:navigationIcon="@drawable/light_mode"
+        app:title="@string/settings"
+        app:titleTextAppearance="@style/content"
+        app:contentInsetStartWithNavigation="12dp"/>
+
+
+    <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/dark_theme_switch"
+        style="@style/SettingsSwitchStyle"
+        android:layout_marginTop="@dimen/main_marginTop"
+        android:text="@string/dark_theme"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/icon_share"
+        style="@style/SettingsItemStyle"
+        android:drawableEnd="@drawable/ic_share"
+        android:text="@string/share"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/icon_support"
+        style="@style/SettingsItemStyle"
+        android:drawableEnd="@drawable/ic_support"
+        android:text="@string/support"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/icon_arrow_forward"
+        style="@style/SettingsItemStyle"
+        android:drawableEnd="@drawable/ic_arrow_forward"
+        android:text="@string/arrow_forward"/>
+
+
+</LinearLayout>

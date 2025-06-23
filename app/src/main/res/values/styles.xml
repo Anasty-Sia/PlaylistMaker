@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="BaseTextStyle">
+        <item name="android:lineHeight">26sp</item>
+        <item name="fontFamily">@font/ys_display</item>
+        <item name="android:textStyle">bold</item>>
+
+    </style>
+
+    <style name="title" parent="BaseTextStyle">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/white</item>
+
+
+    </style>
+
+    <style name="content" parent="BaseTextStyle">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/YP_black</item>
+    </style>
+
+    <style name="content_settings">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:lineHeight">19sp</item>
+        <item name="fontFamily">@font/ys_display</item>
+    </style>
+
+
+    <style name="MainMenuButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginHorizontal">@dimen/main_marginHorizontal</item>
+        <item name="android:background">@drawable/rounded_button</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="android:layout_marginTop">@dimen/main_marginTop_top</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAppearance">@style/content</item>
+        <item name="android:textColor">@color/YP_black</item>
+        <item name="iconSize">24dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="iconPadding">@dimen/main_marginEnd</item>
+        <item name="iconTint">@color/YP_black</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:backgroundTint">@null</item>
+    </style>
+
+    <style name="SettingsSwitchStyle" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">@dimen/settings_marginStar</item>
+        <item name="android:paddingEnd">@dimen/settings_marginEnd</item>
+        <item name="android:paddingTop">@dimen/settings_marginVertical</item>
+        <item name="android:paddingBottom">@dimen/settings_marginVertical</item>
+        <item name="android:textAppearance">@style/content_settings</item>
+        <item name="thumbTint">@color/switch_thumb_color</item>
+        <item name="trackTint">@color/switch_track_color</item>
+        <item name="thumbRadius">10dp</item>
+        <item name="trackHeight">14dp</item>
+    </style>
+
+    <style name="SettingsItemStyle" parent="Widget.MaterialComponents.TextView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">@dimen/settings_marginStar</item>
+        <item name="android:paddingEnd">@dimen/settings_marginEnd</item>
+        <item name="android:paddingTop">@dimen/settings_marginVertical</item>
+        <item name="android:paddingBottom">@dimen/settings_marginVertical</item>
+        <item name="android:textAppearance">@style/content_settings</item>
+    </style>
+
+</resources>
+

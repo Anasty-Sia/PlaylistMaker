@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="main_marginEnd">8dp</dimen>
+    <dimen name="main_marginTop">24dp</dimen>
+    <dimen name="main_marginTop_top">16dp</dimen>
+    <dimen name="main_marginHorizontal">16dp</dimen>
+    <dimen name="settings_marginEnd">12dp</dimen>
+    <dimen name="settings_marginTop">19dp</dimen>
+    <dimen name="settings_marginStar">16dp</dimen>
+    <dimen name="settings_marginVertical">21dp</dimen>
+
+
+
+
+
+</resources>
