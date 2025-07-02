@@ -4,8 +4,8 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#1A1B22"
-    android:backgroundTint="@color/blue"
+    android:theme="@style/Base.Theme.PlaylistMaker"
+    style="@style/background_style_main"
     android:orientation="vertical"
     tools:context=".MainActivity">
 

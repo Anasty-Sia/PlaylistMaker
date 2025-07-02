@@ -5,6 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:theme="@style/Base.Theme.PlaylistMaker"
+    style="@style/background_style"
     tools:context=".SearchActivity">
 
 
@@ -12,11 +14,32 @@
         android:id="@+id/back_search"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
+        app:contentInsetStartWithNavigation="12dp"
         app:navigationIcon="@drawable/light_mode"
         app:title="@string/search"
-        app:titleTextAppearance="@style/content"
-        app:contentInsetStartWithNavigation="12dp"/>
+        app:titleTextAppearance="@style/content" />
 
+    <LinearLayout
+        android:id="@+id/search_container"
+        style="@style/SearchContainer">
+
+        <ImageView
+            android:id="@+id/searchIcon"
+            style="@style/SearchIcon"
+            android:src="@drawable/search_icon" />
+
+        <EditText
+            android:id="@+id/inputSearch"
+            style="@style/SearchInput"
+            android:autofillHints="@string/search"
+            android:hint="@string/search"
+            android:inputType="text" />
+
+        <ImageView
+            android:id="@+id/clearIcon"
+            style="@style/ClearIcon"
+            android:src="@drawable/ic_clear"
+            android:visibility="gone"/>
+    </LinearLayout>
 
 </LinearLayout>
