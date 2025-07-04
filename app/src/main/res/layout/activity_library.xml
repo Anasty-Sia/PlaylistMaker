@@ -14,7 +14,7 @@
         android:id="@+id/back_library"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/light_mode"
+        app:navigationIcon="@drawable/ic_back_arrow_24"
         app:title="@string/library"
         app:titleTextAppearance="@style/content"
         app:contentInsetStartWithNavigation="12dp"/>

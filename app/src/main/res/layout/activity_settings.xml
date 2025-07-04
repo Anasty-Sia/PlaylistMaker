@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:contentInsetStartWithNavigation="12dp"
-        app:navigationIcon="@drawable/light_mode"
+        app:navigationIcon="@drawable/ic_back_arrow_24"
         app:title="@string/settings"
         app:titleTextAppearance="@style/content" />
 
@@ -40,7 +40,7 @@
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/terms_of_service"
         style="@style/SettingsItemStyle"
-        android:drawableEnd="@drawable/ic_arrow_forward"
+        android:drawableEnd="@drawable/ic_arrow_forward_24"
         android:text="@string/arrow_forward"/>
 
 

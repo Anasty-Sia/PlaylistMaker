@@ -21,10 +21,6 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var inputEditText: EditText
     private lateinit var clearButton: ImageView
 
-    companion object {
-        private const val SEARCH_TEXT_KEY = "SEARCH_TEXT"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -110,5 +106,9 @@ class SearchActivity : AppCompatActivity() {
     private fun hideKeyboard(view: View) {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    companion object {
+        private const val SEARCH_TEXT_KEY = "SEARCH_TEXT"
     }
 }

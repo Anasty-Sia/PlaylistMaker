@@ -12,7 +12,7 @@ class LibraryActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_liibrary)
+        setContentView(R.layout.activity_library)
 
         val backButton = findViewById<MaterialToolbar>(R.id.back_library)
 

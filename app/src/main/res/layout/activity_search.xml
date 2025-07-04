@@ -15,22 +15,24 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:contentInsetStartWithNavigation="12dp"
-        app:navigationIcon="@drawable/light_mode"
+        app:navigationIcon="@drawable/ic_back_arrow_24"
         app:title="@string/search"
         app:titleTextAppearance="@style/content" />
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/search_container"
         style="@style/SearchContainer">
 
         <ImageView
             android:id="@+id/searchIcon"
             style="@style/SearchIcon"
-            android:src="@drawable/search_icon" />
+            android:src="@drawable/search_icon_16" />
 
         <EditText
             android:id="@+id/inputSearch"
             style="@style/SearchInput"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="48dp"
             android:autofillHints="@string/search"
             android:hint="@string/search"
             android:inputType="text" />
@@ -38,8 +40,8 @@
         <ImageView
             android:id="@+id/clearIcon"
             style="@style/ClearIcon"
-            android:src="@drawable/ic_clear"
+            android:src="@drawable/ic_clear_24"
             android:visibility="gone"/>
-    </LinearLayout>
+    </FrameLayout>
 
 </LinearLayout>

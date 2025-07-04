@@ -1,7 +1,6 @@
 package com.example.playlistmaker
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +16,7 @@ import androidx.core.net.toUri
 import androidx.core.content.edit
 
 class SettingsActivity : AppCompatActivity() {
+
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
 
@@ -51,7 +51,6 @@ class SettingsActivity : AppCompatActivity() {
             }
 
 
-
             val supportTextView = findViewById<MaterialTextView>(R.id.icon_support)
             supportTextView.setOnClickListener {
                 val supportIntent = Intent(Intent.ACTION_SENDTO).apply {
@@ -73,8 +72,8 @@ class SettingsActivity : AppCompatActivity() {
 
 
             // Восстановление состояния переключателя
-            val sharedPrefs = getSharedPreferences("AppSettings", MODE_PRIVATE)
-            val isDarkTheme = sharedPrefs.getBoolean("dark_theme", false)
+            val sharedPrefs = getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
+            val isDarkTheme = sharedPrefs.getBoolean(DARK_THEME_KEY, false)
 
             if (isDarkTheme) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -88,7 +87,6 @@ class SettingsActivity : AppCompatActivity() {
             themeSwitch.setOnCheckedChangeListener { _, isChecked ->
                 setDarkTheme(isChecked)
                 saveThemePreference(isChecked)
-                recreate() // Пересоздаем активити для применения темы
             }
         }
 
@@ -100,11 +98,15 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         private fun saveThemePreference(enabled: Boolean) {
-            getSharedPreferences("AppSettings", MODE_PRIVATE)
+            getSharedPreferences(SHARED_PREFS_NAME, MODE_PRIVATE)
                 .edit {
-                    putBoolean("dark_theme", enabled)
+                    putBoolean(DARK_THEME_KEY, enabled)
                 }
         }
 
+    companion object {
+        private const val SHARED_PREFS_NAME = "AppSettings"
+        private const val DARK_THEME_KEY = "dark_theme"
+    }
 
 }

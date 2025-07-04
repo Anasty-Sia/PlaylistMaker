@@ -24,18 +24,18 @@
         style="@style/MainMenuButton"
         android:layout_marginTop="@dimen/main_marginTop"
         android:text="@string/search"
-        app:icon="@drawable/ic_search"/>
+        app:icon="@drawable/ic_search_24"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/library_b"
         style="@style/MainMenuButton"
         android:text="@string/library"
-        app:icon="@drawable/ic_library"/>
+        app:icon="@drawable/ic_library_24"/>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/settings_b"
         style="@style/MainMenuButton"
         android:layout_marginBottom="28dp"
         android:text="@string/settings"
-        app:icon="@drawable/ic_settings"/>
+        app:icon="@drawable/ic_settings_24"/>
 </LinearLayout>

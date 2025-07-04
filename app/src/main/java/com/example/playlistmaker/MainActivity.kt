@@ -13,6 +13,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val sharedPrefs = getSharedPreferences("AppSettings", MODE_PRIVATE)
         val isDarkTheme = sharedPrefs.getBoolean("dark_theme", false)
