@@ -4,26 +4,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:orientation="vertical"
+    android:theme="@style/Base.Theme.PlaylistMaker"
+    style="@style/background_style"
     tools:context=".SettingsActivity">
+
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/back_b"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
-        app:navigationIcon="@drawable/light_mode"
+        app:contentInsetStartWithNavigation="12dp"
+        app:navigationIcon="@drawable/ic_back_arrow_24"
         app:title="@string/settings"
-        app:titleTextAppearance="@style/content"
-        app:contentInsetStartWithNavigation="12dp"/>
-
+        app:titleTextAppearance="@style/content" />
 
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/dark_theme_switch"
         style="@style/SettingsSwitchStyle"
         android:layout_marginTop="@dimen/main_marginTop"
-        android:text="@string/dark_theme"/>
+        android:text="@string/dark_theme" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/icon_share"
@@ -35,12 +35,12 @@
         android:id="@+id/icon_support"
         style="@style/SettingsItemStyle"
         android:drawableEnd="@drawable/ic_support"
-        android:text="@string/support"/>
+        android:text="@string/support" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/icon_arrow_forward"
+        android:id="@+id/terms_of_service"
         style="@style/SettingsItemStyle"
-        android:drawableEnd="@drawable/ic_arrow_forward"
+        android:drawableEnd="@drawable/ic_arrow_forward_24"
         android:text="@string/arrow_forward"/>
 
 

@@ -4,6 +4,8 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/Base.Theme.PlaylistMaker"
+    style="@style/background_style"
     android:orientation="vertical"
     tools:context=".LibraryActivity">
 
@@ -12,8 +14,7 @@
         android:id="@+id/back_library"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/white"
-        app:navigationIcon="@drawable/light_mode"
+        app:navigationIcon="@drawable/ic_back_arrow_24"
         app:title="@string/library"
         app:titleTextAppearance="@style/content"
         app:contentInsetStartWithNavigation="12dp"/>
