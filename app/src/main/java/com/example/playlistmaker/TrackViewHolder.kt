@@ -24,10 +24,10 @@ class TrackViewHolder (itemView: View): RecyclerView.ViewHolder(itemView) {
 
         Glide.with(itemView.context)
             .load(item.artworkUrl100)
-            .placeholder(R.drawable.ic_music_note_24)
-            .error(R.drawable.ic_music_note_24)
-            .apply(RequestOptions.bitmapTransform(RoundedCorners(8)))
+            .placeholder(R.drawable.ic_placeholder_45)
+            .error(R.drawable.ic_placeholder_45)
             .centerCrop()
+            .apply(RequestOptions.bitmapTransform(RoundedCorners(8)))
             .into(ivArtwork)
 
 

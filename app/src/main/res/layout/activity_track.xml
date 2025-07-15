@@ -3,14 +3,12 @@
     android:id="@+id/rootLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:theme="@style/Base.Theme.PlaylistMaker"
-    style="@style/TrackItem"
-    tools:context=".SearchActivity">
+    style="@style/TrackItem">
 
     <ImageView
         android:id="@+id/ivArtwork"
         style="@style/TrackArtwork"
-        tools:src="@drawable/ic_music_note_24" />
+        tools:src="@drawable/ic_placeholder_45"/>
 
     <LinearLayout
         style="@style/TrackTextContainer">
@@ -18,7 +16,7 @@
         <TextView
             android:id="@+id/tvTrackName"
             style="@style/TrackName"
-            tools:text="Yesterday (Remastered 2009)" />
+            tools:text="Yesterday (Remastered 2009)"/>
 
         <LinearLayout
             style="@style/TrackInfoContainer">
@@ -26,20 +24,20 @@
             <TextView
                 android:id="@+id/tvArtistName"
                 style="@style/TrackInfo"
-                tools:text="The Beatles" />
+                tools:text="The Beatles"/>
 
             <ImageView
-                style="@style/TrackInfoSeparator"
-                android:src="@drawable/ic_split_13" />
+               style="@style/TrackInfoSeparator"
+                android:src="@drawable/ic_split_13"/>
 
             <TextView
                 android:id="@+id/tvTrackTime"
                 style="@style/TrackInfo"
-                tools:text="2:05" />
+                tools:text="2:05"/>
         </LinearLayout>
     </LinearLayout>
 
     <ImageView
         style="@style/TrackArrow"
-        android:src="@drawable/ic_arrow_forward_24" />
+        android:src="@drawable/ic_arrow_forward_24"/>
 </LinearLayout>

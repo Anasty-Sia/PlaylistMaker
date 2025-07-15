@@ -41,7 +41,7 @@
         android:id="@+id/terms_of_service"
         style="@style/SettingsItemStyle"
         android:drawableEnd="@drawable/ic_arrow_forward_24"
-        android:text="@string/arrow_forward"/>
+        android:text="@string/arrow_forward" />
 
 
 </LinearLayout>

@@ -50,6 +50,6 @@
         android:layout_height="wrap_content"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
-        tools:listitem="@layout/activity_track" />
+        tools:listitem="@layout/activity_track"/>
 
 </LinearLayout>

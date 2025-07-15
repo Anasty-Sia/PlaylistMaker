@@ -56,6 +56,7 @@
         <item name="android:paddingBottom">@dimen/settings_marginVertical</item>
         <item name="android:textAppearance">@style/content_settings</item>
         <item name="thumbTint">@color/switch_thumb_color</item>
+        <item name="trackColor">@color/switch_track_color</item>
         <item name="trackTint">@color/switch_track_color</item>
         <item name="thumbRadius">10dp</item>
         <item name="trackHeight">14dp</item>
@@ -91,6 +92,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginHorizontal">16dp</item>
         <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
         <item name="android:background">@drawable/rounded_search</item>
     </style>
 
@@ -120,7 +122,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">end|center_vertical</item>
-        <item name="color">@color/white</item>
+        <item name="tint">@color/YP_black</item>
         <item name="android:layout_marginEnd">12dp</item>
     </style>
 
@@ -128,17 +130,15 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:paddingStart">16dp</item>
-        <item name="android:paddingEnd">16dp</item>
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
         <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="TrackArtwork">
-        <item name="android:layout_width">40dp</item>
-        <item name="android:layout_height">40dp</item>
-        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">13dp</item>
+        <item name="android:layout_marginVertical">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
         <item name="android:scaleType">centerCrop</item>
     </style>
 
@@ -147,28 +147,16 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:fontFamily">@font/ys_display_medium</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
     </style>
-
 
     <style name="TrackInfo">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">11sp</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:fontFamily">@font/ys_display_medium</item>
     </style>
-
-
-    <style name="TrackInfoSeparator">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:fontFamily">@font/ys_display_medium</item>
-        <item name="tint">@color/white</item>
-    </style>
-
 
     <style name="TrackInfoContainer">
         <item name="android:layout_width">match_parent</item>
@@ -177,18 +165,24 @@
         <item name="android:gravity">center_vertical</item>
     </style>
 
+    <style name="TrackInfoSeparator">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="tint">@color/white</item>
+    </style>
 
     <style name="TrackTextContainer">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginEnd">8dp</item>
         <item name="android:orientation">vertical</item>
     </style>
-
 
     <style name="TrackArrow">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginEnd">12dp</item>
         <item name="tint">@color/white</item>
     </style>
 
