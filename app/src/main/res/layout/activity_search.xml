@@ -35,7 +35,9 @@
             android:layout_marginStart="48dp"
             android:autofillHints="@string/search"
             android:hint="@string/search"
-            android:inputType="text" />
+            android:inputType="text"
+            android:imeOptions="actionDone"
+            android:singleLine="true"/>
 
         <ImageView
             android:id="@+id/clearIcon"
@@ -51,5 +53,44 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
         tools:listitem="@layout/activity_track"/>
+
+    <LinearLayout
+        android:id="@+id/empty_results"
+        style="@style/ViewStyle">
+
+        <ImageView
+            android:id="@+id/emptyResultsIcon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_no_results_120"/>
+
+        <TextView
+            android:id="@+id/emptyResultsText"
+            android:text="@string/no_results"
+            style="@style/EmptyStateText"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/error_view"
+        style="@style/ViewStyle">
+
+        <ImageView
+            android:id="@+id/errorIcon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="120dp"
+            android:src="@drawable/ic_error_120"/>
+
+        <TextView
+            android:id="@+id/errorText"
+            android:layout_marginHorizontal="24dp"
+            android:text="@string/server_error"
+            style="@style/EmptyStateText"/>
+
+        <Button
+            android:id="@+id/refresh_button"
+            style="@style/RefreshButtonStyle"
+            android:text="@string/retry" />
+    </LinearLayout>
 
 </LinearLayout>

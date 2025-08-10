@@ -5,9 +5,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageView
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -16,12 +18,27 @@ import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.Callback
+import retrofit2.converter.gson.GsonConverterFactory
 
 class SearchActivity : AppCompatActivity() {
+
+    private val iTunesBaseUrl = "https://itunes.apple.com"
+    private lateinit var iTunesService: iTunesSearchAPI
+    private lateinit var trackAdapter: TrackAdapter
+    private lateinit var rvTrack: RecyclerView
+    private lateinit var emptyResultsView: View
+    private lateinit var errorView: View
+    private lateinit var refreshButton: View
 
     private var currentSearchText: String = ""
     private lateinit var inputEditText: EditText
     private lateinit var clearButton: ImageView
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +48,16 @@ class SearchActivity : AppCompatActivity() {
         inputEditText = findViewById(R.id.inputSearch)
         clearButton = findViewById(R.id.clearIcon)
         val backButton = findViewById<MaterialToolbar>(R.id.back_search)
+        rvTrack = findViewById(R.id.rvTrack)
+        emptyResultsView = findViewById(R.id.empty_results)
+        errorView = findViewById(R.id.error_view)
+        refreshButton = findViewById(R.id.refresh_button)
 
+        setupRetrofit()
+        setupViews()
+        setupBackButton(backButton)
+        setupSearchField()
+        setupClearButton()
 
         if (savedInstanceState != null) {
             currentSearchText = savedInstanceState.getString(SEARCH_TEXT_KEY, "")
@@ -40,31 +66,95 @@ class SearchActivity : AppCompatActivity() {
                 clearButton.visibility = View.VISIBLE
             }
         }
-
-        setupBackButton(backButton)
-        setupSearchField()
-        setupClearButton()
-
-        val rvTrack = findViewById<RecyclerView>(R.id.rvTrack)
-        rvTrack.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-
-
-        val trackAdapter = TrackAdapter(
-            listOf(
-                Track("Smells Like Teen Spirit","Nirvana","5:01","https://is5-ssl.mzstatic.com/image/thumb/Music115/v4/7b/58/c2/7b58c21a-2b51-2bb2-e59a-9bb9b96ad8c3/00602567924166.rgb.jpg/100x100bb.jpg"),
-                Track("Billie Jean","Michael Jackson","4:35","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/3d/9d/38/3d9d3811-71f0-3a0e-1ada-3004e56ff852/827969428726.jpg/100x100bb.jpg"),
-                Track("Stayin' Alive","Bee Gees","4:10","https://is4-ssl.mzstatic.com/image/thumb/Music115/v4/1f/80/1f/1f801fc1-8c0f-ea3e-d3e5-387c6619619e/16UMGIM86640.rgb.jpg/100x100bb.jpg"),
-                Track("Whole Lotta Love","Led Zeppelin","5:33","https://is2-ssl.mzstatic.com/image/thumb/Music62/v4/7e/17/e3/7e17e33f-2efa-2a36-e916-7f808576cf6b/mzm.fyigqcbs.jpg/100x100bb.jpg"),
-                Track("Sweet Child O'Mine","Guns N' Roses","5:03","https://is5-ssl.mzstatic.com/image/thumb/Music125/v4/a0/4d/c4/a04dc484-03cc-02aa-fa82-5334fcb4bc16/18UMGIM24878.rgb.jpg/100x100bb.jpg "),
-            )
-        )
-
-        rvTrack.adapter = trackAdapter
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(SEARCH_TEXT_KEY, currentSearchText)
+    private fun setupRetrofit() {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(iTunesBaseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        iTunesService = retrofit.create(iTunesSearchAPI::class.java)
+    }
+
+    private fun setupViews() {
+        trackAdapter = TrackAdapter(emptyList())
+        rvTrack.layoutManager = LinearLayoutManager(this)
+        rvTrack.adapter = trackAdapter
+
+        refreshButton.setOnClickListener {
+            if (currentSearchText.isNotEmpty()) {
+                refreshButton.isEnabled = false
+                performSearch(currentSearchText)
+                refreshButton.postDelayed({ refreshButton.isEnabled = true }, 1000)
+            } else {
+                inputEditText.requestFocus()
+                showKeyboard(inputEditText)
+            }
+        }
+    }
+
+    private fun performSearch(searchText: String) {
+        if (searchText.isBlank()) {
+            resetSearchState()
+            return
+        }
+
+        iTunesService.search(searchText).enqueue(object : Callback<TrackResponse> {
+            override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
+                if (response.isSuccessful) {
+                    val tracks = response.body()?.results ?: emptyList()
+                    if (tracks.isEmpty()) {
+                        showEmptyState(R.string.no_results, R.drawable.ic_no_results_120)
+                    } else {
+                        showResults(tracks)
+                    }
+                } else {
+                    showErrorState(true)
+                }
+            }
+
+            override fun onFailure(call: Call<TrackResponse>, t: Throwable) {
+                showErrorState(true)
+
+            }
+        })
+    }
+
+
+    private fun showEmptyState(messageRes: Int, iconRes: Int) {
+        emptyResultsView.visibility = View.VISIBLE
+        errorView.visibility = View.GONE
+        rvTrack.visibility = View.GONE
+
+        emptyResultsView.findViewById<TextView>(R.id.emptyResultsText).text = getString(messageRes)
+        emptyResultsView.findViewById<ImageView>(R.id.emptyResultsIcon).setImageResource(iconRes)
+    }
+
+
+    private fun showResults(tracks: List<Track>) {
+        emptyResultsView.visibility = View.GONE
+        errorView.visibility = View.GONE
+        rvTrack.visibility = View.VISIBLE
+
+        trackAdapter.updateData(tracks)
+    }
+
+    private fun showErrorState(show: Boolean) {
+        if (show) {
+            errorView.visibility = View.VISIBLE
+            emptyResultsView.visibility = View.GONE
+            rvTrack.visibility = View.GONE
+        } else {
+            errorView.visibility = View.GONE
+        }
+    }
+
+    private fun resetSearchState() {
+        emptyResultsView.visibility = View.GONE
+        errorView.visibility = View.GONE
+        rvTrack.visibility = View.VISIBLE
+        trackAdapter.updateData(emptyList())
     }
 
     private fun setupBackButton(backButton: MaterialToolbar) {
@@ -96,14 +186,22 @@ class SearchActivity : AppCompatActivity() {
 
         inputEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 currentSearchText = s?.toString() ?: ""
                 clearButton.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
             }
-
             override fun afterTextChanged(s: Editable?) {}
         })
+
+        inputEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                performSearch(currentSearchText)
+                hideKeyboard(inputEditText)
+                true
+            } else {
+                false
+            }
+        }
     }
 
     private fun setupClearButton() {
@@ -113,6 +211,8 @@ class SearchActivity : AppCompatActivity() {
             inputEditText.clearFocus()
             currentSearchText = ""
             clearButton.visibility = View.GONE
+            showErrorState(false)
+            resetSearchState()
         }
     }
 
@@ -126,9 +226,12 @@ class SearchActivity : AppCompatActivity() {
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(SEARCH_TEXT_KEY, currentSearchText)
+    }
+
     companion object {
         private const val SEARCH_TEXT_KEY = "SEARCH_TEXT"
     }
-
-
 }
