@@ -19,8 +19,6 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-
-
             enableEdgeToEdge()
             setContentView(R.layout.activity_settings)
 
@@ -38,7 +36,6 @@ class SettingsActivity : AppCompatActivity() {
             backButton.setNavigationOnClickListener {
                 finish()
             }
-
 
             val shareTextView = findViewById<MaterialTextView>(R.id.icon_share)
 

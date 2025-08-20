@@ -46,6 +46,30 @@
             android:visibility="gone"/>
     </FrameLayout>
 
+    <LinearLayout
+        android:id="@+id/history_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/history_title"
+            android:text="@string/search_history"
+            style="@style/HistoryTitle"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvHistory"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/activity_track"
+            style="@style/rvHistory"/>
+
+        <Button
+            android:id="@+id/clear_history_button"
+            android:text="@string/clear_history"
+            style="@style/ClearHistoryButton"/>
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTrack"
         android:layout_width="match_parent"

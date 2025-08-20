@@ -28,11 +28,17 @@ class SearchActivity : AppCompatActivity() {
 
     private val iTunesBaseUrl = "https://itunes.apple.com"
     private lateinit var iTunesService: iTunesSearchAPI
-    private lateinit var trackAdapter: TrackAdapter
+    private lateinit var searchAdapter: TrackAdapter
+    private lateinit var historyAdapter: TrackAdapter
+    private lateinit var searchHistory: SearchHistory
     private lateinit var rvTrack: RecyclerView
+    private lateinit var rvHistory: RecyclerView
     private lateinit var emptyResultsView: View
     private lateinit var errorView: View
     private lateinit var refreshButton: View
+    private lateinit var historyContainer: View
+    private lateinit var clearHistoryButton: View
+    private lateinit var historyTitle: TextView
 
     private var currentSearchText: String = ""
     private lateinit var inputEditText: EditText
@@ -49,15 +55,21 @@ class SearchActivity : AppCompatActivity() {
         clearButton = findViewById(R.id.clearIcon)
         val backButton = findViewById<MaterialToolbar>(R.id.back_search)
         rvTrack = findViewById(R.id.rvTrack)
+        rvHistory = findViewById(R.id.rvHistory)
         emptyResultsView = findViewById(R.id.empty_results)
         errorView = findViewById(R.id.error_view)
         refreshButton = findViewById(R.id.refresh_button)
+        historyContainer = findViewById(R.id.history_container)
+        clearHistoryButton = findViewById(R.id.clear_history_button)
+        historyTitle = findViewById(R.id.history_title)
 
+        searchHistory= SearchHistory(this)
         setupRetrofit()
         setupViews()
         setupBackButton(backButton)
         setupSearchField()
         setupClearButton()
+        setupHistory()
 
         if (savedInstanceState != null) {
             currentSearchText = savedInstanceState.getString(SEARCH_TEXT_KEY, "")
@@ -78,9 +90,19 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupViews() {
-        trackAdapter = TrackAdapter(emptyList())
+
+        searchAdapter = TrackAdapter(emptyList()) { track ->
+            addToSearchHistory(track)
+        }
+
+        historyAdapter = TrackAdapter(emptyList()) { track ->
+            addToSearchHistory(track)
+        }
+
         rvTrack.layoutManager = LinearLayoutManager(this)
-        rvTrack.adapter = trackAdapter
+        rvTrack.adapter = searchAdapter
+        rvHistory.layoutManager = LinearLayoutManager(this)
+        rvHistory.adapter = historyAdapter
 
         refreshButton.setOnClickListener {
             if (currentSearchText.isNotEmpty()) {
@@ -92,13 +114,40 @@ class SearchActivity : AppCompatActivity() {
                 showKeyboard(inputEditText)
             }
         }
+
+        clearHistoryButton.setOnClickListener {
+            searchHistory.clearHistory()
+            showSearchHistory()
+        }
+    }
+
+    private fun addToSearchHistory(track: Track) {
+        searchHistory.addTrack(track)
+        showSearchHistory()
+    }
+
+    private fun setupHistory() {
+        showSearchHistory()
+    }
+
+    private fun showSearchHistory() {
+        val history = searchHistory.getHistory()
+        if (history.isNotEmpty() && currentSearchText.isEmpty() && inputEditText.hasFocus()) {
+            historyContainer.visibility = View.VISIBLE
+            historyAdapter.updateData(history) // Обновляем данные адаптера истории
+        } else {
+            historyContainer.visibility = View.GONE
+        }
     }
 
     private fun performSearch(searchText: String) {
         if (searchText.isBlank()) {
             resetSearchState()
+            showSearchHistory()
             return
         }
+
+        historyContainer.visibility = View.GONE
 
         iTunesService.search(searchText).enqueue(object : Callback<TrackResponse> {
             override fun onResponse(call: Call<TrackResponse>, response: Response<TrackResponse>) {
@@ -126,6 +175,7 @@ class SearchActivity : AppCompatActivity() {
         emptyResultsView.visibility = View.VISIBLE
         errorView.visibility = View.GONE
         rvTrack.visibility = View.GONE
+        historyContainer.visibility = View.GONE
 
         emptyResultsView.findViewById<TextView>(R.id.emptyResultsText).text = getString(messageRes)
         emptyResultsView.findViewById<ImageView>(R.id.emptyResultsIcon).setImageResource(iconRes)
@@ -136,8 +186,8 @@ class SearchActivity : AppCompatActivity() {
         emptyResultsView.visibility = View.GONE
         errorView.visibility = View.GONE
         rvTrack.visibility = View.VISIBLE
-
-        trackAdapter.updateData(tracks)
+        historyContainer.visibility = View.GONE
+        searchAdapter.updateData(tracks)
     }
 
     private fun showErrorState(show: Boolean) {
@@ -145,6 +195,7 @@ class SearchActivity : AppCompatActivity() {
             errorView.visibility = View.VISIBLE
             emptyResultsView.visibility = View.GONE
             rvTrack.visibility = View.GONE
+            historyContainer.visibility = View.GONE
         } else {
             errorView.visibility = View.GONE
         }
@@ -154,7 +205,7 @@ class SearchActivity : AppCompatActivity() {
         emptyResultsView.visibility = View.GONE
         errorView.visibility = View.GONE
         rvTrack.visibility = View.VISIBLE
-        trackAdapter.updateData(emptyList())
+        searchAdapter.updateData(emptyList())
     }
 
     private fun setupBackButton(backButton: MaterialToolbar) {
@@ -172,7 +223,10 @@ class SearchActivity : AppCompatActivity() {
 
     private fun setupSearchField() {
         inputEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && inputEditText.text.isNotEmpty()) {
+            if (hasFocus) {
+                if (inputEditText.text.isEmpty()) {
+                    showSearchHistory()
+                }
                 showKeyboard(inputEditText)
             }
         }
@@ -182,6 +236,9 @@ class SearchActivity : AppCompatActivity() {
                 inputEditText.requestFocus()
                 showKeyboard(inputEditText)
             }
+            else {
+                showSearchHistory()
+            }
         }
 
         inputEditText.addTextChangedListener(object : TextWatcher {
@@ -189,6 +246,11 @@ class SearchActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 currentSearchText = s?.toString() ?: ""
                 clearButton.visibility = if (s.isNullOrEmpty()) View.GONE else View.VISIBLE
+                if (s.isNullOrEmpty()) {
+                    showSearchHistory()
+                } else {
+                    historyContainer.visibility = View.GONE
+                }
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -213,6 +275,7 @@ class SearchActivity : AppCompatActivity() {
             clearButton.visibility = View.GONE
             showErrorState(false)
             resetSearchState()
+            showSearchHistory()
         }
     }
 
