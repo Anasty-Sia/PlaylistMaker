@@ -32,12 +32,12 @@
             android:id="@+id/inputSearch"
             style="@style/SearchInput"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="48dp"
+            android:layout_marginStart="36dp"
             android:autofillHints="@string/search"
             android:hint="@string/search"
-            android:inputType="text"
             android:imeOptions="actionDone"
-            android:singleLine="true"/>
+            android:inputType="text"
+            android:singleLine="true" />
 
         <ImageView
             android:id="@+id/clearIcon"
