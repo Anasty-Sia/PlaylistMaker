@@ -32,12 +32,12 @@
             android:id="@+id/inputSearch"
             style="@style/SearchInput"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="48dp"
+            android:layout_marginStart="36dp"
             android:autofillHints="@string/search"
             android:hint="@string/search"
-            android:inputType="text"
             android:imeOptions="actionDone"
-            android:singleLine="true"/>
+            android:inputType="text"
+            android:singleLine="true" />
 
         <ImageView
             android:id="@+id/clearIcon"
@@ -45,6 +45,30 @@
             android:src="@drawable/ic_clear_24"
             android:visibility="gone"/>
     </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/history_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/history_title"
+            android:text="@string/search_history"
+            style="@style/HistoryTitle"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvHistory"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/activity_track"
+            style="@style/rvHistory"/>
+
+        <Button
+            android:id="@+id/clear_history_button"
+            android:text="@string/clear_history"
+            style="@style/ClearHistoryButton"/>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTrack"
