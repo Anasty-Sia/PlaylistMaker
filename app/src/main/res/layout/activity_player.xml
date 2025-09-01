@@ -21,7 +21,8 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/playerMain"
@@ -58,9 +59,10 @@
 
             <ImageView
                 android:id="@+id/ivArtworkLarge"
-                android:layout_width="312dp"
-                android:layout_height="312dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_marginTop="26dp"
+                android:layout_marginHorizontal="24dp"
                 android:contentDescription="@string/player_album_image_description"
                 android:scaleType="centerCrop"
                 app:layout_constraintDimensionRatio="h, 1:1"
@@ -134,7 +136,6 @@
                 app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"
                 app:layout_constraintTop_toTopOf="@id/ivPlayButton" />
 
-            <!-- Длительность трека -->
             <TextView
                 android:id="@+id/tvDurationLabel"
                 style="@style/TextViewPlayerItem.Name"
@@ -150,7 +151,6 @@
                 app:layout_constraintTop_toBottomOf="@id/tvTrackTimePlayer"
                 tools:text="2:45" />
 
-            <!-- Альбом -->
             <TextView
                 android:id="@+id/tvAlbumLabel"
                 style="@style/TextViewPlayerItem.Name"
@@ -171,7 +171,6 @@
                 android:visibility="visible"
                 app:constraint_referenced_ids="tvAlbumLabel, tvAlbumName" />
 
-            <!-- Год релиза -->
             <TextView
                 android:id="@+id/tvReleaseYearLabel"
                 style="@style/TextViewPlayerItem.Name"
@@ -192,7 +191,6 @@
                 android:visibility="visible"
                 app:constraint_referenced_ids="tvReleaseYearLabel, tvReleaseYear" />
 
-            <!-- Жанр -->
             <TextView
                 android:id="@+id/tvGenreLabel"
                 style="@style/TextViewPlayerItem.Name"
@@ -206,7 +204,6 @@
                 app:layout_constraintStart_toEndOf="@id/tvGenreLabel"
                 app:layout_constraintTop_toBottomOf="@id/tvReleaseYear" />
 
-            <!-- Страна -->
             <TextView
                 android:id="@+id/tvCountryLabel"
                 style="@style/TextViewPlayerItem.Name"
