@@ -18,6 +18,16 @@
     <string name="retry">Обновить</string>
     <string name="search_history">Вы искали</string>
     <string name="clear_history">Очистить историю</string>
+    <string name="player">Аудиоплеер</string>
+    <string name="album">Альбом</string>
+    <string name="release_year">Год</string>
+    <string name="genre">Жанр</string>
+    <string name="country">Страна</string>
+    <string name="add_to_playlist">Добавить в плейлист</string>
+    <string name="play_pause">Воспроизвести/Пауза</string>
+    <string name="add_to_favorites">Добавить в избранное</string>
+    <string name="duration">Длительность</string>
+    <string name="player_album_image_description">Обложка альбома</string>
 
 
 </resources>

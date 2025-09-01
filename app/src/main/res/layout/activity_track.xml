@@ -16,7 +16,7 @@
         <TextView
             android:id="@+id/tvTrackName"
             style="@style/TrackName"
-            tools:text="Yesterday (Remastered 2009)"/>
+            tools:text="Yesterday (Remastered 2009)" />
 
         <LinearLayout
             style="@style/TrackInfoContainer">

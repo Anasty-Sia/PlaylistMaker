@@ -1,5 +1,6 @@
 package com.example.playlistmaker
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -93,10 +94,18 @@ class SearchActivity : AppCompatActivity() {
 
         searchAdapter = TrackAdapter(emptyList()) { track ->
             addToSearchHistory(track)
+            val intent = Intent(this, PlayerActivity::class.java).apply {
+                putExtra("track", track)
+            }
+            startActivity(intent)
         }
 
         historyAdapter = TrackAdapter(emptyList()) { track ->
             addToSearchHistory(track)
+            val intent = Intent(this, PlayerActivity::class.java).apply {
+                putExtra("track", track)
+            }
+            startActivity(intent)
         }
 
         rvTrack.layoutManager = LinearLayoutManager(this)

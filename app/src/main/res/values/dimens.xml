@@ -9,6 +9,11 @@
     <dimen name="settings_marginTop">19dp</dimen>
     <dimen name="settings_marginStar">16dp</dimen>
     <dimen name="settings_marginVertical">21dp</dimen>
+    <dimen name="player_padding">16dp</dimen>
+    <dimen name="player_additional_padding">24dp</dimen>
+    <dimen name="player_play_button_size">100dp</dimen>
+    <dimen name="player_play_button_vertical_margin">32dp</dimen>
+    <dimen name="player_image_button_size">48dp</dimen>
 
 
 
