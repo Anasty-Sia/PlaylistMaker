@@ -29,7 +29,12 @@ class PlayerActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_player)
 
-        currentTrack = intent.getParcelableExtra("track")!!
+        val track = intent.getParcelableExtra<Track>(EXTRA_TRACK)
+        if (track == null) {
+            finish()
+            return
+        }
+        currentTrack = track
 
         val backButton = findViewById<MaterialToolbar>(R.id.back_player)
 
@@ -69,10 +74,11 @@ class PlayerActivity : AppCompatActivity() {
         trackTimeTextView.text = track.getFormattedTime()
         durationValueTextView.text = track.getFormattedTime()
 
+        val cornerRadiusInPx = (16 * resources.displayMetrics.density).toInt()
         val options = RequestOptions()
             .placeholder(R.drawable.ic_placeholder_45)
             .error(R.drawable.ic_placeholder_45)
-            .transform(RoundedCorners(16))
+            .transform(RoundedCorners(cornerRadiusInPx))
 
 
         val artworkUrl = track.getHighResArtworkUrl()
@@ -125,11 +131,11 @@ class PlayerActivity : AppCompatActivity() {
             if (isPlaying) {
                 pausePlayback()
                 playButton.setImageResource(R.drawable.ic_play_arrow)
-                playButton.tag = "paused"
+                playButton.tag = TAG_PAUSED
             } else {
                 startPlayback()
                 playButton.setImageResource(R.drawable.ic_pause)
-                playButton.tag = "playing"
+                playButton.tag = TAG_PLAYING
             }
             isPlaying = !isPlaying
         }
@@ -185,6 +191,10 @@ class PlayerActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         pausePlayback()
+
+        if (isFinishing) {
+            finish()
+        }
     }
 
     override fun onDestroy() {
@@ -192,6 +202,40 @@ class PlayerActivity : AppCompatActivity() {
         mediaPlayer?.release()
         mediaPlayer = null
     }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(KEY_IS_PLAYING, isPlaying)
+        outState.putBoolean(KEY_IS_FAVORITE, isFavorite)
+    }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        isPlaying = savedInstanceState.getBoolean(KEY_IS_PLAYING, false)
+        isFavorite = savedInstanceState.getBoolean(KEY_IS_FAVORITE, false)
+
+        updatePlayButtonState()
+        updateFavoriteButton(findViewById(R.id.ivAddToFavorites))
+    }
+
+    private fun updatePlayButtonState() {
+        val playButton = findViewById<ImageButton>(R.id.ivPlayButton)
+        if (isPlaying) {
+            playButton.setImageResource(R.drawable.ic_pause)
+            playButton.tag = TAG_PLAYING
+            startPlayback()
+        } else {
+            playButton.setImageResource(R.drawable.ic_play_arrow)
+            playButton.tag = TAG_PAUSED
+        }
+    }
+
+    companion object {
+        const val EXTRA_TRACK = "track"
+        const val TAG_PLAYING = "playing"
+        const val TAG_PAUSED = "paused"
+
+        private const val KEY_IS_PLAYING = "is_playing"
+        private const val KEY_IS_FAVORITE = "is_favorite"
+    }
 
 }
