@@ -75,12 +75,13 @@
                 android:id="@+id/tvTrackNamePlayer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="26dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textAppearance="@style/PlayerTextStyle"
-                app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"
-                app:layout_constraintStart_toEndOf="@id/playerStartBaseLine"
+                app:layout_constraintEnd_toStartOf="@id/playerAdditionalEndBaseLine"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@id/playerAdditionalStartBaseLine"
                 app:layout_constraintTop_toBottomOf="@id/ivArtworkLarge"
                 tools:text="Yesterday (Remastered 2009)" />
 
@@ -92,8 +93,8 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:textAppearance="@style/PlayerTextStyle.Secondary"
-                app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"
-                app:layout_constraintStart_toEndOf="@id/playerStartBaseLine"
+                app:layout_constraintEnd_toStartOf="@id/playerAdditionalEndBaseLine"
+                app:layout_constraintStart_toEndOf="@id/playerAdditionalStartBaseLine"
                 app:layout_constraintTop_toBottomOf="@id/tvTrackNamePlayer"
                 tools:text="The Beatles" />
 
@@ -124,7 +125,7 @@
                 android:contentDescription="@string/add_to_playlist"
                 android:src="@drawable/ic_add_to_playlist_51"
                 app:layout_constraintBottom_toBottomOf="@id/ivPlayButton"
-                app:layout_constraintStart_toEndOf="@id/playerStartBaseLine"
+                app:layout_constraintStart_toEndOf="@id/playerAdditionalStartBaseLine"
                 app:layout_constraintTop_toTopOf="@id/ivPlayButton" />
 
             <ImageButton
@@ -133,7 +134,7 @@
                 android:contentDescription="@string/add_to_favorites"
                 android:src="@drawable/ic_favorite_border_51"
                 app:layout_constraintBottom_toBottomOf="@id/ivPlayButton"
-                app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"
+                app:layout_constraintEnd_toStartOf="@id/playerAdditionalEndBaseLine"
                 app:layout_constraintTop_toTopOf="@id/ivPlayButton" />
 
             <TextView
@@ -141,14 +142,16 @@
                 style="@style/TextViewPlayerItem.Name"
                 android:text="@string/duration"
                 app:layout_constraintEnd_toStartOf="@id/tvDurationValue"
-                app:layout_constraintTop_toTopOf="@id/tvDurationValue" />
+                app:layout_constraintTop_toTopOf="@id/tvDurationValue"
+                app:layout_constraintStart_toEndOf="@id/playerStartBaseLine"/>
 
             <TextView
                 android:id="@+id/tvDurationValue"
                 style="@style/TextViewPlayerItem.Item"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="30dp"
                 app:layout_constraintStart_toEndOf="@id/tvDurationLabel"
                 app:layout_constraintTop_toBottomOf="@id/tvTrackTimePlayer"
+                app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"
                 tools:text="2:45" />
 
             <TextView
@@ -156,13 +159,15 @@
                 style="@style/TextViewPlayerItem.Name"
                 android:text="@string/album"
                 app:layout_constraintEnd_toStartOf="@id/tvAlbumName"
-                app:layout_constraintTop_toTopOf="@id/tvAlbumName" />
+                app:layout_constraintTop_toTopOf="@id/tvAlbumName"
+                app:layout_constraintStart_toEndOf="@id/playerStartBaseLine"/>
 
             <TextView
                 android:id="@+id/tvAlbumName"
                 style="@style/TextViewPlayerItem.Item"
                 app:layout_constraintStart_toEndOf="@id/tvAlbumLabel"
-                app:layout_constraintTop_toBottomOf="@id/tvDurationValue" />
+                app:layout_constraintTop_toBottomOf="@id/tvDurationValue"
+                app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"/>
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/playerTrackAlbumGroup"
@@ -176,13 +181,15 @@
                 style="@style/TextViewPlayerItem.Name"
                 android:text="@string/release_year"
                 app:layout_constraintEnd_toStartOf="@id/tvReleaseYear"
-                app:layout_constraintTop_toTopOf="@id/tvReleaseYear" />
+                app:layout_constraintTop_toTopOf="@id/tvReleaseYear"
+                app:layout_constraintStart_toEndOf="@id/playerStartBaseLine"/>
 
             <TextView
                 android:id="@+id/tvReleaseYear"
                 style="@style/TextViewPlayerItem.Item"
                 app:layout_constraintStart_toEndOf="@id/tvReleaseYearLabel"
-                app:layout_constraintTop_toBottomOf="@id/tvAlbumName" />
+                app:layout_constraintTop_toBottomOf="@id/tvAlbumName"
+                app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"/>
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/playerTrackYearGroup"
@@ -196,26 +203,30 @@
                 style="@style/TextViewPlayerItem.Name"
                 android:text="@string/genre"
                 app:layout_constraintEnd_toStartOf="@id/tvGenre"
-                app:layout_constraintTop_toTopOf="@id/tvGenre" />
+                app:layout_constraintTop_toTopOf="@id/tvGenre"
+                app:layout_constraintStart_toEndOf="@id/playerStartBaseLine"/>
 
             <TextView
                 android:id="@+id/tvGenre"
                 style="@style/TextViewPlayerItem.Item"
                 app:layout_constraintStart_toEndOf="@id/tvGenreLabel"
-                app:layout_constraintTop_toBottomOf="@id/tvReleaseYear" />
+                app:layout_constraintTop_toBottomOf="@id/tvReleaseYear"
+                app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"/>
 
             <TextView
                 android:id="@+id/tvCountryLabel"
                 style="@style/TextViewPlayerItem.Name"
                 android:text="@string/country"
                 app:layout_constraintEnd_toStartOf="@id/tvCountry"
-                app:layout_constraintTop_toTopOf="@id/tvCountry" />
+                app:layout_constraintTop_toTopOf="@id/tvCountry"
+                app:layout_constraintStart_toEndOf="@id/playerStartBaseLine"/>
 
             <TextView
                 android:id="@+id/tvCountry"
                 style="@style/TextViewPlayerItem.Item"
                 app:layout_constraintStart_toEndOf="@id/tvCountryLabel"
-                app:layout_constraintTop_toBottomOf="@id/tvGenre" />
+                app:layout_constraintTop_toBottomOf="@id/tvGenre"
+                app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
