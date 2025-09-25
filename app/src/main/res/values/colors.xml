@@ -4,6 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="YP_black">#1A1B22</color>
     <color name="blue">#3F8AE0</color>
+    <color name="blue_surface">#3772E7</color>
     <color name="grey">#AEAFB4</color>
     <color name="icon_grey">#535459</color>
     <color name="YP_grey">#c5c6c7</color>

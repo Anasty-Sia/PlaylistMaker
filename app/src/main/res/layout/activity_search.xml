@@ -53,6 +53,7 @@
         android:orientation="vertical"
         android:visibility="gone">
 
+
         <TextView
             android:id="@+id/history_title"
             android:text="@string/search_history"
@@ -68,6 +69,22 @@
             android:id="@+id/clear_history_button"
             android:text="@string/clear_history"
             style="@style/ClearHistoryButton"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginBottom="258dp"
+            android:indeterminateTint="@color/blue_surface"
+            android:visibility="gone"/>
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -116,5 +133,6 @@
             style="@style/RefreshButtonStyle"
             android:text="@string/retry" />
     </LinearLayout>
+
 
 </LinearLayout>
