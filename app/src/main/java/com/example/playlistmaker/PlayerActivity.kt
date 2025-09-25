@@ -1,7 +1,10 @@
 package com.example.playlistmaker
 
+
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
@@ -16,6 +19,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.MaterialToolbar
+import java.util.Locale
+import java.text.SimpleDateFormat
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -23,6 +28,11 @@ class PlayerActivity : AppCompatActivity() {
     private var isFavorite = false
     private var isPlaying = false
     private var mediaPlayer: MediaPlayer? = null
+    private var playbackPosition = 0
+
+    private val handler = Handler(Looper.getMainLooper())
+    private lateinit var progressRunnable: Runnable
+    private val progressUpdateDelay = 300L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,10 +57,13 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         backButton.setNavigationOnClickListener {
+            stopPlayback()
             finish()
         }
 
         setupPlayerUI(currentTrack)
+        initializeMediaPlayer()
+        setupProgressRunnable()
     }
 
     private fun setupPlayerUI(track: Track) {
@@ -71,7 +84,7 @@ class PlayerActivity : AppCompatActivity() {
 
         trackNameTextView.text = track.trackName
         artistNameTextView.text = track.artistName
-        trackTimeTextView.text = track.getFormattedTime()
+        trackTimeTextView.text = "00:00"
         durationValueTextView.text = track.getFormattedTime()
 
         val cornerRadiusInPx = (16 * resources.displayMetrics.density).toInt()
@@ -130,17 +143,10 @@ class PlayerActivity : AppCompatActivity() {
         playButton.setOnClickListener {
             if (isPlaying) {
                 pausePlayback()
-                playButton.setImageResource(R.drawable.ic_play_arrow)
-                playButton.tag = TAG_PAUSED
             } else {
                 startPlayback()
-                playButton.setImageResource(R.drawable.ic_pause)
-                playButton.tag = TAG_PLAYING
             }
-            isPlaying = !isPlaying
         }
-
-
 
         addToPlaylistButton.setOnClickListener {
             //добавление в плейлист
@@ -153,6 +159,115 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         updateFavoriteButton(favoriteButton)
+    }
+
+    private fun initializeMediaPlayer() {
+        mediaPlayer = MediaPlayer().apply {
+            setOnCompletionListener {
+                onPlaybackCompleted()
+            }
+        }
+    }
+
+    private fun setupProgressRunnable() {
+        progressRunnable = object : Runnable {
+            override fun run() {
+                updateProgress()
+                if (isPlaying && mediaPlayer?.isPlaying == true) {
+                    handler.postDelayed(this, progressUpdateDelay)
+                }
+            }
+        }
+    }
+
+    private fun updateProgress() {
+        val progressTextView = findViewById<TextView>(R.id.tvTrackTimePlayer)
+        mediaPlayer?.let { player ->
+            val currentPosition = player.currentPosition
+            progressTextView.text = formatTime(currentPosition)
+        }
+    }
+
+    private fun formatTime(milliseconds: Int): String {
+        val dateFormat = SimpleDateFormat("mm:ss", Locale.getDefault())
+        return dateFormat.format(milliseconds)
+    }
+    private fun startPlayback() {
+        mediaPlayer?.let { player ->
+            try {
+                if (player.isPlaying) {
+                    return
+                }
+
+                if (playbackPosition > 0 && mediaPlayer != null) {
+                    player.seekTo(playbackPosition)
+                    player.start()
+                    isPlaying = true
+                    updatePlayButtonState()
+                    handler.post(progressRunnable)
+                } else {
+                    if (currentTrack.previewUrl.isNullOrEmpty()) {
+                        return
+                    }
+
+                    player.reset()
+                    player.setDataSource(currentTrack.previewUrl)
+                    player.prepareAsync()
+
+                    player.setOnPreparedListener {
+                        it.start()
+                        isPlaying = true
+                        playbackPosition = 0
+                        updatePlayButtonState()
+                        handler.post(progressRunnable)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun pausePlayback() {
+        mediaPlayer?.let { player ->
+            if (player.isPlaying) {
+                player.pause()
+                playbackPosition = player.currentPosition
+            }
+        }
+        isPlaying = false
+        handler.removeCallbacks(progressRunnable)
+        updatePlayButtonState()
+    }
+
+    private fun onPlaybackCompleted() {
+        isPlaying = false
+        playbackPosition = 0
+
+        handler.removeCallbacks(progressRunnable)
+
+        val progressTextView = findViewById<TextView>(R.id.tvTrackTimePlayer)
+        progressTextView.text = "00:00"
+
+        updatePlayButtonState()
+        mediaPlayer?.reset()
+    }
+
+    private fun stopPlayback() {
+        mediaPlayer?.let { player ->
+            if (player.isPlaying) {
+                player.stop()
+            }
+            player.reset()
+        }
+        isPlaying = false
+        playbackPosition = 0
+        handler.removeCallbacks(progressRunnable)
+
+        val progressTextView = findViewById<TextView>(R.id.tvTrackTimePlayer)
+        progressTextView.text = "00:00"
+
+        updatePlayButtonState()
     }
 
     private fun setupOptionalField(
@@ -180,25 +295,17 @@ class PlayerActivity : AppCompatActivity() {
             favoriteButton.setImageResource(R.drawable.ic_favorite_border_51)
         }
     }
-    private fun startPlayback() {
-        //Реализовать начало воспроизведения
-    }
-
-    private fun pausePlayback() {
-        //Реализовать паузу воспроизведения
-    }
 
     override fun onPause() {
         super.onPause()
-        pausePlayback()
-
-        if (isFinishing) {
-            finish()
+        if (isPlaying) {
+            pausePlayback()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        handler.removeCallbacks(progressRunnable)
         mediaPlayer?.release()
         mediaPlayer = null
     }
@@ -206,15 +313,23 @@ class PlayerActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         outState.putBoolean(KEY_IS_PLAYING, isPlaying)
         outState.putBoolean(KEY_IS_FAVORITE, isFavorite)
+        outState.putInt(KEY_PLAYBACK_POSITION, playbackPosition)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         isPlaying = savedInstanceState.getBoolean(KEY_IS_PLAYING, false)
         isFavorite = savedInstanceState.getBoolean(KEY_IS_FAVORITE, false)
+        playbackPosition = savedInstanceState.getInt(KEY_PLAYBACK_POSITION, 0)
 
         updatePlayButtonState()
         updateFavoriteButton(findViewById(R.id.ivAddToFavorites))
+
+        // Обновляем прогресс если есть сохраненная позиция
+        if (playbackPosition > 0) {
+            val progressTextView = findViewById<TextView>(R.id.tvTrackTimePlayer)
+            progressTextView.text = formatTime(playbackPosition)
+        }
     }
 
     private fun updatePlayButtonState() {
@@ -222,12 +337,14 @@ class PlayerActivity : AppCompatActivity() {
         if (isPlaying) {
             playButton.setImageResource(R.drawable.ic_pause)
             playButton.tag = TAG_PLAYING
-            startPlayback()
         } else {
             playButton.setImageResource(R.drawable.ic_play_arrow)
             playButton.tag = TAG_PAUSED
         }
     }
+
+
+
 
     companion object {
         const val EXTRA_TRACK = "track"
@@ -236,6 +353,7 @@ class PlayerActivity : AppCompatActivity() {
 
         private const val KEY_IS_PLAYING = "is_playing"
         private const val KEY_IS_FAVORITE = "is_favorite"
+        private const val KEY_PLAYBACK_POSITION = "playback_position"
     }
 
 }
