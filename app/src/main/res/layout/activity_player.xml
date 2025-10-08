@@ -7,7 +7,7 @@
     style="@style/background_style"
     android:theme="@style/Base.Theme.PlaylistMaker"
     android:orientation="vertical"
-    tools:context=".PlayerActivity">
+    tools:context=".presentation.PlayerActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/back_player"

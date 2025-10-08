@@ -1,9 +1,10 @@
-package com.example.playlistmaker
+package com.example.playlistmaker.domain.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.Locale
+
 @Parcelize
 data class Track(
     val trackId: Int,
@@ -33,4 +34,3 @@ data class Track(
         return releaseDate?.take(4)
     }
 }
-
