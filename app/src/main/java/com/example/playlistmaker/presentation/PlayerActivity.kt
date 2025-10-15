@@ -12,13 +12,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.request.RequestOptions
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityPlayerBinding
 import com.example.playlistmaker.domain.model.Track
 import com.google.android.material.appbar.MaterialToolbar
 import java.text.SimpleDateFormat
 import java.util.Locale
+
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -32,7 +32,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var progressRunnable: Runnable
-    private val progressUpdateDelay = 300L
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,34 +66,17 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupPlayerUI(track: Track) {
         binding.tvTrackNamePlayer.text = track.trackName
         binding.tvArtistNamePlayer.text = track.artistName
-        binding.tvTrackTimePlayer.text = "00:00"
+        binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
         binding.tvDurationValue.text = track.getFormattedTime()
 
-        val cornerRadiusInPx = (16 * resources.displayMetrics.density).toInt()
-        val options = RequestOptions()
+        val cornerRadiusInPx = (8 * resources.displayMetrics.density).toInt()
+        val artworkUrl = track.getHighResArtworkUrl()?: track.artworkUrl100
+        Glide.with(this)
+            .load(artworkUrl)
             .placeholder(R.drawable.ic_placeholder_45)
             .error(R.drawable.ic_placeholder_45)
             .transform(RoundedCorners(cornerRadiusInPx))
-
-        val artworkUrl = track.getHighResArtworkUrl()
-        if (!artworkUrl.isNullOrEmpty()) {
-            Glide.with(this)
-                .load(artworkUrl)
-                .apply(options)
-                .into(binding.ivArtworkLarge)
-        } else {
-            if (!track.artworkUrl100.isNullOrEmpty()) {
-                Glide.with(this)
-                    .load(track.artworkUrl100)
-                    .apply(options)
-                    .into(binding.ivArtworkLarge)
-            } else {
-                Glide.with(this)
-                    .load(R.drawable.ic_placeholder_45)
-                    .apply(options)
-                    .into(binding.ivArtworkLarge)
-            }
-        }
+            .into(binding.ivArtworkLarge)
 
         setupOptionalField(
             track.collectionName,
@@ -161,7 +144,7 @@ class PlayerActivity : AppCompatActivity() {
             override fun run() {
                 updateProgress()
                 if (isPlaying && mediaPlayer?.isPlaying == true) {
-                    handler.postDelayed(this, progressUpdateDelay)
+                    handler.postDelayed(this, PROGRESS_UPDATE_DELAY)
                 }
             }
         }
@@ -232,7 +215,7 @@ class PlayerActivity : AppCompatActivity() {
         playbackPosition = 0
 
         handler.removeCallbacks(progressRunnable)
-        binding.tvTrackTimePlayer.text = "00:00"
+        binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
         updatePlayButtonState()
         mediaPlayer?.reset()
     }
@@ -247,7 +230,7 @@ class PlayerActivity : AppCompatActivity() {
         isPlaying = false
         playbackPosition = 0
         handler.removeCallbacks(progressRunnable)
-        binding.tvTrackTimePlayer.text = "00:00"
+        binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
         updatePlayButtonState()
     }
 
@@ -326,9 +309,11 @@ class PlayerActivity : AppCompatActivity() {
         const val EXTRA_TRACK = "track"
         const val TAG_PLAYING = "playing"
         const val TAG_PAUSED = "paused"
+        const val DEFAULT_TRACK_TIME = "00:00"
 
         private const val KEY_IS_PLAYING = "is_playing"
         private const val KEY_IS_FAVORITE = "is_favorite"
         private const val KEY_PLAYBACK_POSITION = "playback_position"
+        private const val PROGRESS_UPDATE_DELAY = 300L
     }
 }

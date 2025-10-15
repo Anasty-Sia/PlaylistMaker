@@ -9,19 +9,18 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import androidx.lifecycle.lifecycleScope
 import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivitySettingsBinding
+import com.example.playlistmaker.domain.interactor.SettingsInteractorInterface
 import com.google.android.material.appbar.MaterialToolbar
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
-    private lateinit var settingsInteractor: com.example.playlistmaker.domain.interactor.SettingsInteractor
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    private lateinit var settingsInteractor: SettingsInteractorInterface
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +53,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         binding.darkThemeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            coroutineScope.launch {
+            lifecycleScope.launch {
                 settingsInteractor.setDarkThemeEnabled(isChecked)
                 setDarkTheme(isChecked)
             }
@@ -74,7 +73,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun loadCurrentTheme() {
-        coroutineScope.launch {
+        lifecycleScope.launch {
             val isDarkTheme = settingsInteractor.isDarkThemeEnabled()
             binding.darkThemeSwitch.isChecked = isDarkTheme
         }

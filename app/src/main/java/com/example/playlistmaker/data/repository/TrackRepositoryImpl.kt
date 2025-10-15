@@ -5,24 +5,26 @@ import com.example.playlistmaker.data.mapper.TrackMapper
 import com.example.playlistmaker.data.network.iTunesSearchAPI
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.domain.repository.TrackRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import retrofit2.Response
+import kotlin.coroutines.cancellation.CancellationException
 
 class TrackRepositoryImpl(private val iTunesService: iTunesSearchAPI) : TrackRepository {
 
-    override suspend fun searchTracks(query: String): List<Track> = withContext(Dispatchers.IO) {
+    override suspend fun searchTracks(query: String): List<Track> {
         try {
-            val response: retrofit2.Response<TrackResponseDto> = iTunesService.search(query).execute()
+            val response: Response<TrackResponseDto> = iTunesService.search(query)
             if (response.isSuccessful) {
                 val trackResponse = response.body()
-                trackResponse?.results?.let { trackDtos ->
-                    return@withContext TrackMapper.mapDtoListToDomain(trackDtos)
+                return trackResponse?.results?.let { trackDtos ->
+                    TrackMapper.mapDtoListToDomain(trackDtos)
                 } ?: emptyList()
             } else {
-                emptyList()
+                return emptyList()
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            emptyList()
+           return emptyList()
         }
     }
 }

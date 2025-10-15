@@ -2,6 +2,8 @@ package com.example.playlistmaker.presentation
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
@@ -9,23 +11,27 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.playlistmaker.Creator
 import com.example.playlistmaker.databinding.ActivitySearchBinding
+import com.example.playlistmaker.domain.interactor.SearchHistoryInteractorInterface
+import com.example.playlistmaker.domain.interactor.SearchInteractorInterface
 import com.example.playlistmaker.domain.model.Track
 import com.example.playlistmaker.presentation.adapter.TrackAdapter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 class SearchActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySearchBinding
-    private lateinit var searchInteractor: com.example.playlistmaker.domain.interactor.SearchInteractor
-    private lateinit var searchHistoryInteractor: com.example.playlistmaker.domain.interactor.SearchHistoryInteractor
+    private lateinit var searchInteractor: SearchInteractorInterface
+    private lateinit var searchHistoryInteractor: SearchHistoryInteractorInterface
     private val searchAdapter = TrackAdapter(emptyList()) { track -> onTrackClick(track) }
     private val historyAdapter = TrackAdapter(emptyList()) { track -> onTrackClick(track) }
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+
+    private val handler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +56,11 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        searchRunnable?.let { handler.removeCallbacks(it) }
+    }
+
     private fun setupSystemBars() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.backSearch) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -67,7 +78,7 @@ class SearchActivity : AppCompatActivity() {
         binding.rvHistory.adapter = historyAdapter
 
         binding.clearHistoryButton.setOnClickListener {
-            coroutineScope.launch {
+            lifecycleScope.launch {
                 searchHistoryInteractor.clearSearchHistory()
                 showSearchHistory()
             }
@@ -79,21 +90,28 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupSearchField() {
-        binding.inputSearch.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val searchText = s?.toString() ?: ""
+        binding.inputSearch.doOnTextChanged { text, _, _, _ ->
+            val searchText = text?.toString() ?: ""
                 binding.clearIcon.visibility = if (searchText.isNotEmpty()) View.VISIBLE else View.GONE
 
+                searchRunnable?.let { handler.removeCallbacks(it) }
                 if (searchText.isEmpty()) {
+                    binding.progressBar.visibility = View.GONE
                     showSearchHistory()
                 } else {
                     binding.historyContainer.visibility = View.GONE
-                    performSearch(searchText)
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.rvTrack.visibility = View.GONE
+                    binding.emptyResults.visibility = View.GONE
+                    binding.errorView.visibility = View.GONE
+
+                    searchRunnable = Runnable {
+                        performSearch(searchText)
+                    }
+
+                    handler.postDelayed(searchRunnable!!, SEARCH_DEBOUNCE_DELAY)
                 }
             }
-            override fun afterTextChanged(s: android.text.Editable?) {}
-        })
 
         binding.clearIcon.setOnClickListener {
             binding.inputSearch.text.clear()
@@ -103,12 +121,12 @@ class SearchActivity : AppCompatActivity() {
 
     private fun performSearch(query: String) {
         if (query.isBlank()) {
+            binding.progressBar.visibility = View.GONE
             showSearchHistory()
             return
         }
 
-        coroutineScope.launch {
-            binding.progressBar.visibility = View.VISIBLE
+        lifecycleScope.launch {
             binding.emptyResults.visibility = View.GONE
             binding.errorView.visibility = View.GONE
             binding.historyContainer.visibility = View.GONE
@@ -129,23 +147,24 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun onTrackClick(track: Track) {
-        coroutineScope.launch {
+        lifecycleScope.launch {
             searchHistoryInteractor.addTrackToHistory(track)
             val intent = Intent(this@SearchActivity, PlayerActivity::class.java).apply {
-                putExtra("track", track)
+                putExtra(PlayerActivity.EXTRA_TRACK, track)
             }
             startActivity(intent)
         }
     }
 
     private fun showSearchHistory() {
-        coroutineScope.launch {
+        lifecycleScope.launch {
             val history = searchHistoryInteractor.getSearchHistory()
             if (history.isNotEmpty()) {
                 binding.historyContainer.visibility = View.VISIBLE
                 binding.rvTrack.visibility = View.GONE
                 binding.emptyResults.visibility = View.GONE
                 binding.errorView.visibility = View.GONE
+                binding.progressBar.visibility = View.GONE
                 historyAdapter.updateData(history)
             } else {
                 binding.historyContainer.visibility = View.GONE
@@ -188,5 +207,9 @@ class SearchActivity : AppCompatActivity() {
         if (binding.inputSearch.text.isEmpty()) {
             showSearchHistory()
         }
+    }
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
     }
 }

@@ -14,8 +14,7 @@ class SearchHistoryRepositoryImpl(private val context: Context) : SearchHistoryR
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("SearchHistory", Context.MODE_PRIVATE)
     private val gson = Gson()
-    private val key = "search_history"
-    private val maxSize = 10
+
 
     override suspend fun addTrackToHistory(track: Track) = withContext(Dispatchers.IO) {
         val history = getSearchHistory().toMutableList()
@@ -47,5 +46,11 @@ class SearchHistoryRepositoryImpl(private val context: Context) : SearchHistoryR
     private fun saveHistory(history: List<Track>) {
         val json = gson.toJson(history)
         sharedPreferences.edit().putString(key, json).apply()
+    }
+
+
+    companion object {
+        private const val key = "search_history"
+        private const val maxSize = 10
     }
 }

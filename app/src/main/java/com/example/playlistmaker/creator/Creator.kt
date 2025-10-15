@@ -6,8 +6,11 @@ import com.example.playlistmaker.data.repository.SearchHistoryRepositoryImpl
 import com.example.playlistmaker.data.repository.SettingsRepositoryImpl
 import com.example.playlistmaker.data.repository.TrackRepositoryImpl
 import com.example.playlistmaker.domain.interactor.SearchHistoryInteractor
+import com.example.playlistmaker.domain.interactor.SearchHistoryInteractorInterface
 import com.example.playlistmaker.domain.interactor.SearchInteractor
+import com.example.playlistmaker.domain.interactor.SearchInteractorInterface
 import com.example.playlistmaker.domain.interactor.SettingsInteractor
+import com.example.playlistmaker.domain.interactor.SettingsInteractorInterface
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -38,15 +41,15 @@ object Creator {
         return SettingsRepositoryImpl(context)
     }
 
-    fun provideSearchInteractor(context: Context): SearchInteractor {
+    fun provideSearchInteractor(context: Context): SearchInteractorInterface {
         return SearchInteractor(provideTrackRepository())
     }
 
-    fun provideSearchHistoryInteractor(context: Context): SearchHistoryInteractor {
+    fun provideSearchHistoryInteractor(context: Context): SearchHistoryInteractorInterface {
         return SearchHistoryInteractor(provideSearchHistoryRepository(context))
     }
 
-    fun provideSettingsInteractor(context: Context): SettingsInteractor {
+    fun provideSettingsInteractor(context: Context): SettingsInteractorInterface {
         return SettingsInteractor(provideSettingsRepository(context))
     }
 }
