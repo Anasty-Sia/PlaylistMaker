@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:theme="@style/Base.Theme.PlaylistMaker"
     style="@style/background_style"
-    tools:context=".SearchActivity">
+    tools:context=".data.repository.SearchHistoryRepositoryImpl">
 
 
     <com.google.android.material.appbar.MaterialToolbar

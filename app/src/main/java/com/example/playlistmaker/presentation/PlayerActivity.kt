@@ -1,5 +1,4 @@
-package com.example.playlistmaker
-
+package com.example.playlistmaker.presentation
 
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -7,24 +6,25 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.request.RequestOptions
+import com.example.playlistmaker.R
+import com.example.playlistmaker.databinding.ActivityPlayerBinding
+import com.example.playlistmaker.domain.model.Track
 import com.google.android.material.appbar.MaterialToolbar
-import java.util.Locale
 import java.text.SimpleDateFormat
+import java.util.Locale
+
 
 class PlayerActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityPlayerBinding
     private lateinit var currentTrack: Track
+
     private var isFavorite = false
     private var isPlaying = false
     private var mediaPlayer: MediaPlayer? = null
@@ -32,20 +32,26 @@ class PlayerActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var progressRunnable: Runnable
-    private val progressUpdateDelay = 300L
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_player)
+        binding = ActivityPlayerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val track = intent.getParcelableExtra<Track>(EXTRA_TRACK)
-        if (track == null) {
+        currentTrack = intent.getParcelableExtra(EXTRA_TRACK) ?: run {
             finish()
             return
         }
-        currentTrack = track
 
+        setupSystemBars()
+        setupPlayerUI(currentTrack)
+        setupBackButton()
+        initializeMediaPlayer()
+        setupProgressRunnable()
+    }
+
+    private fun setupSystemBars() {
         val backButton = findViewById<MaterialToolbar>(R.id.back_player)
 
         ViewCompat.setOnApplyWindowInsetsListener(backButton) { view, insets ->
@@ -55,92 +61,49 @@ class PlayerActivity : AppCompatActivity() {
             }
             insets
         }
-
-        backButton.setNavigationOnClickListener {
-            stopPlayback()
-            finish()
-        }
-
-        setupPlayerUI(currentTrack)
-        initializeMediaPlayer()
-        setupProgressRunnable()
     }
 
     private fun setupPlayerUI(track: Track) {
+        binding.tvTrackNamePlayer.text = track.trackName
+        binding.tvArtistNamePlayer.text = track.artistName
+        binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
+        binding.tvDurationValue.text = track.getFormattedTime()
 
-        val artworkImageView = findViewById<ImageView>(R.id.ivArtworkLarge)
-        val trackNameTextView = findViewById<TextView>(R.id.tvTrackNamePlayer)
-        val artistNameTextView = findViewById<TextView>(R.id.tvArtistNamePlayer)
-        val trackTimeTextView = findViewById<TextView>(R.id.tvTrackTimePlayer)
-        val playButton = findViewById<ImageButton>(R.id.ivPlayButton)
-        val addToPlaylistButton = findViewById<ImageButton>(R.id.ivAddToPlaylist)
-        val favoriteButton = findViewById<ImageButton>(R.id.ivAddToFavorites)
-
-        val durationValueTextView = findViewById<TextView>(R.id.tvDurationValue)
-        val albumNameTextView = findViewById<TextView>(R.id.tvAlbumName)
-        val releaseYearTextView = findViewById<TextView>(R.id.tvReleaseYear)
-        val genreTextView = findViewById<TextView>(R.id.tvGenre)
-        val countryTextView = findViewById<TextView>(R.id.tvCountry)
-
-        trackNameTextView.text = track.trackName
-        artistNameTextView.text = track.artistName
-        trackTimeTextView.text = "00:00"
-        durationValueTextView.text = track.getFormattedTime()
-
-        val cornerRadiusInPx = (16 * resources.displayMetrics.density).toInt()
-        val options = RequestOptions()
+        val cornerRadiusInPx = (8 * resources.displayMetrics.density).toInt()
+        val artworkUrl = track.getHighResArtworkUrl()?: track.artworkUrl100
+        Glide.with(this)
+            .load(artworkUrl)
             .placeholder(R.drawable.ic_placeholder_45)
             .error(R.drawable.ic_placeholder_45)
             .transform(RoundedCorners(cornerRadiusInPx))
-
-
-        val artworkUrl = track.getHighResArtworkUrl()
-        if (!artworkUrl.isNullOrEmpty()) {
-            Glide.with(this)
-                .load(artworkUrl)
-                .apply(options)
-                .into(artworkImageView)
-        } else {
-            if (!track.artworkUrl100.isNullOrEmpty()) {
-                Glide.with(this)
-                    .load(track.artworkUrl100)
-                    .apply(options)
-                    .into(artworkImageView)
-            } else {
-                Glide.with(this)
-                    .load(R.drawable.ic_placeholder_45)
-                    .apply(options)
-                    .into(artworkImageView)
-            }
-        }
+            .into(binding.ivArtworkLarge)
 
         setupOptionalField(
             track.collectionName,
-            albumNameTextView,
-            findViewById(R.id.tvAlbumLabel),
-            findViewById(R.id.playerTrackAlbumGroup)
+            binding.tvAlbumName,
+            binding.tvAlbumLabel,
+            binding.playerTrackAlbumGroup
         )
         setupOptionalField(
             track.getReleaseYear(),
-            releaseYearTextView,
-            findViewById(R.id.tvReleaseYearLabel),
-            findViewById(R.id.playerTrackYearGroup)
+            binding.tvReleaseYear,
+            binding.tvReleaseYearLabel,
+            binding.playerTrackYearGroup
         )
         setupOptionalField(
             track.primaryGenreName,
-            genreTextView,
-            findViewById(R.id.tvGenreLabel),
+            binding.tvGenre,
+            binding.tvGenreLabel,
             null
         )
         setupOptionalField(
             track.country,
-            countryTextView,
-            findViewById(R.id.tvCountryLabel),
+            binding.tvCountry,
+            binding.tvCountryLabel,
             null
         )
 
-
-        playButton.setOnClickListener {
+        binding.ivPlayButton.setOnClickListener {
             if (isPlaying) {
                 pausePlayback()
             } else {
@@ -148,17 +111,24 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
 
-        addToPlaylistButton.setOnClickListener {
-            //добавление в плейлист
+        binding.ivAddToPlaylist.setOnClickListener {
+            // добавление в плейлист
         }
 
-        favoriteButton.setOnClickListener {
+        binding.ivAddToFavorites.setOnClickListener {
             isFavorite = !isFavorite
-            updateFavoriteButton(favoriteButton)
-            //Сохранить состояние избранного
+            updateFavoriteButton()
+            // Сохранить состояние избранного
         }
 
-        updateFavoriteButton(favoriteButton)
+        updateFavoriteButton()
+    }
+
+    private fun setupBackButton() {
+        binding.backPlayer.setNavigationOnClickListener {
+            stopPlayback()
+            finish()
+        }
     }
 
     private fun initializeMediaPlayer() {
@@ -174,17 +144,16 @@ class PlayerActivity : AppCompatActivity() {
             override fun run() {
                 updateProgress()
                 if (isPlaying && mediaPlayer?.isPlaying == true) {
-                    handler.postDelayed(this, progressUpdateDelay)
+                    handler.postDelayed(this, PROGRESS_UPDATE_DELAY)
                 }
             }
         }
     }
 
     private fun updateProgress() {
-        val progressTextView = findViewById<TextView>(R.id.tvTrackTimePlayer)
         mediaPlayer?.let { player ->
             val currentPosition = player.currentPosition
-            progressTextView.text = formatTime(currentPosition)
+            binding.tvTrackTimePlayer.text = formatTime(currentPosition)
         }
     }
 
@@ -192,6 +161,7 @@ class PlayerActivity : AppCompatActivity() {
         val dateFormat = SimpleDateFormat("mm:ss", Locale.getDefault())
         return dateFormat.format(milliseconds)
     }
+
     private fun startPlayback() {
         mediaPlayer?.let { player ->
             try {
@@ -245,10 +215,7 @@ class PlayerActivity : AppCompatActivity() {
         playbackPosition = 0
 
         handler.removeCallbacks(progressRunnable)
-
-        val progressTextView = findViewById<TextView>(R.id.tvTrackTimePlayer)
-        progressTextView.text = "00:00"
-
+        binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
         updatePlayButtonState()
         mediaPlayer?.reset()
     }
@@ -263,17 +230,14 @@ class PlayerActivity : AppCompatActivity() {
         isPlaying = false
         playbackPosition = 0
         handler.removeCallbacks(progressRunnable)
-
-        val progressTextView = findViewById<TextView>(R.id.tvTrackTimePlayer)
-        progressTextView.text = "00:00"
-
+        binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
         updatePlayButtonState()
     }
 
     private fun setupOptionalField(
         value: String?,
-        valueTextView: TextView,
-        labelTextView: TextView,
+        valueTextView: android.widget.TextView,
+        labelTextView: android.widget.TextView,
         group: View?
     ) {
         if (!value.isNullOrEmpty()) {
@@ -288,11 +252,21 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateFavoriteButton(favoriteButton: ImageButton) {
+    private fun updateFavoriteButton() {
         if (isFavorite) {
-            favoriteButton.setImageResource(R.drawable.ic_favorite_filled_51)
+            binding.ivAddToFavorites.setImageResource(R.drawable.ic_favorite_filled_51)
         } else {
-            favoriteButton.setImageResource(R.drawable.ic_favorite_border_51)
+            binding.ivAddToFavorites.setImageResource(R.drawable.ic_favorite_border_51)
+        }
+    }
+
+    private fun updatePlayButtonState() {
+        if (isPlaying) {
+            binding.ivPlayButton.setImageResource(R.drawable.ic_pause)
+            binding.ivPlayButton.tag = TAG_PLAYING
+        } else {
+            binding.ivPlayButton.setImageResource(R.drawable.ic_play_arrow)
+            binding.ivPlayButton.tag = TAG_PAUSED
         }
     }
 
@@ -309,6 +283,7 @@ class PlayerActivity : AppCompatActivity() {
         mediaPlayer?.release()
         mediaPlayer = null
     }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putBoolean(KEY_IS_PLAYING, isPlaying)
@@ -323,37 +298,22 @@ class PlayerActivity : AppCompatActivity() {
         playbackPosition = savedInstanceState.getInt(KEY_PLAYBACK_POSITION, 0)
 
         updatePlayButtonState()
-        updateFavoriteButton(findViewById(R.id.ivAddToFavorites))
+        updateFavoriteButton()
 
-        // Обновляем прогресс если есть сохраненная позиция
         if (playbackPosition > 0) {
-            val progressTextView = findViewById<TextView>(R.id.tvTrackTimePlayer)
-            progressTextView.text = formatTime(playbackPosition)
+            binding.tvTrackTimePlayer.text = formatTime(playbackPosition)
         }
     }
-
-    private fun updatePlayButtonState() {
-        val playButton = findViewById<ImageButton>(R.id.ivPlayButton)
-        if (isPlaying) {
-            playButton.setImageResource(R.drawable.ic_pause)
-            playButton.tag = TAG_PLAYING
-        } else {
-            playButton.setImageResource(R.drawable.ic_play_arrow)
-            playButton.tag = TAG_PAUSED
-        }
-    }
-
-
-
 
     companion object {
         const val EXTRA_TRACK = "track"
         const val TAG_PLAYING = "playing"
         const val TAG_PAUSED = "paused"
+        const val DEFAULT_TRACK_TIME = "00:00"
 
         private const val KEY_IS_PLAYING = "is_playing"
         private const val KEY_IS_FAVORITE = "is_favorite"
         private const val KEY_PLAYBACK_POSITION = "playback_position"
+        private const val PROGRESS_UPDATE_DELAY = 300L
     }
-
 }
