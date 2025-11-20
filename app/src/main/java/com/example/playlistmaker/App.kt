@@ -2,29 +2,35 @@ package com.example.playlistmaker
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.playlistmaker.domain.interactor.SettingsInteractorInterface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 class App: Application() {
-    private lateinit var settingsInteractor: SettingsInteractorInterface
+
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onCreate() {
         super.onCreate()
+        setupAppTheme()
+    }
 
-        settingsInteractor = Creator.provideSettingsInteractor(this)
+    private fun setupAppTheme() {
+        applicationScope.launch {
+            try {
+                val settingsInteractor = Creator.provideSettingsInteractor(this@App)
+                val isDarkTheme = settingsInteractor.isDarkThemeEnabled()
 
-        CoroutineScope(Dispatchers.Main).launch {
-            val isDarkTheme = settingsInteractor.isDarkThemeEnabled()
-            applyTheme(isDarkTheme)
+                AppCompatDelegate.setDefaultNightMode(
+                    if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES
+                    else AppCompatDelegate.MODE_NIGHT_NO
+                )
+            } catch (e: Exception) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
         }
     }
-
-    private fun applyTheme(isDarkTheme: Boolean) {
-        AppCompatDelegate.setDefaultNightMode(
-            if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES
-            else AppCompatDelegate.MODE_NIGHT_NO
-        )
-    }
 }
+
+
