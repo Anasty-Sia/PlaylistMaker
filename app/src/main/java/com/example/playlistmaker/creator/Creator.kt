@@ -20,10 +20,13 @@ import com.example.playlistmaker.search.domain.interactor.impl.SearchInteractorI
 import com.example.playlistmaker.search.domain.repository.SearchHistoryRepository
 import com.example.playlistmaker.search.domain.repository.TrackRepository
 import com.example.playlistmaker.search.ui.view_model.SearchViewModel
-import com.example.playlistmaker.settings.domain.interactor.SettingsInteractorInterface
+import com.example.playlistmaker.settings.data.repository.impl.ExternalActionsRepositoryImpl
 import com.example.playlistmaker.settings.domain.interactor.SharingInteractor
 import com.example.playlistmaker.settings.domain.interactor.impl.SharingInteractorImpl
-import com.example.playlistmaker.settings.domain.repository.SettingsRepository
+import com.example.playlistmaker.settings.data.provider.ResourcesProvider
+import com.example.playlistmaker.settings.data.provider.impl.ResourcesProviderImpl
+import com.example.playlistmaker.settings.data.repository.ExternalActionsRepository
+import com.example.playlistmaker.settings.data.repository.SettingsRepository
 import com.example.playlistmaker.settings.ui.view_model.SettingsViewModel
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -98,12 +101,23 @@ object Creator {
         return SettingsRepositoryImpl(context)
     }
 
-     fun provideSettingsInteractor(context: Context): SettingsInteractorInterface {
+     fun provideSettingsInteractor(context: Context): SettingsInteractor {
         return SettingsInteractor(provideSettingsRepository(context))
     }
 
+    private fun provideExternalActionsRepository(context: Context): ExternalActionsRepository {
+        return ExternalActionsRepositoryImpl(context)
+    }
+
+    private fun provideResourcesProvider(context: Context): ResourcesProvider {
+        return ResourcesProviderImpl(context)
+    }
+
     private fun provideSharingInteractor(context: Context): SharingInteractor {
-        return SharingInteractorImpl(context)
+        return SharingInteractorImpl(
+            externalActionsRepository = provideExternalActionsRepository(context),
+            resourcesProvider = provideResourcesProvider(context)
+        )
     }
 
     fun provideSettingsViewModelFactory(context: Context): ViewModelProvider.Factory {

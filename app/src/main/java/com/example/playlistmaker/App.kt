@@ -2,25 +2,20 @@ package com.example.playlistmaker
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class App: Application() {
-
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onCreate() {
         super.onCreate()
         setupAppTheme()
     }
-
     private fun setupAppTheme() {
-        applicationScope.launch {
             try {
-                val settingsInteractor = Creator.provideSettingsInteractor(this@App)
-                val isDarkTheme = settingsInteractor.isDarkThemeEnabled()
+                val settingsInteractor = Creator.provideSettingsInteractor(this)
+                val isDarkTheme =  runBlocking {
+                    settingsInteractor.isDarkThemeEnabled()
+                }
 
                 AppCompatDelegate.setDefaultNightMode(
                     if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES
@@ -31,6 +26,7 @@ class App: Application() {
             }
         }
     }
-}
+
+
 
 

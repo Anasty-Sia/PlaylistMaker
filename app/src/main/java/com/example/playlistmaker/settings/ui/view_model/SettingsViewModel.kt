@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.playlistmaker.settings.domain.interactor.SettingsInteractorInterface
+import com.example.playlistmaker.settings.domain.interactor.SettingsInteractor
 import com.example.playlistmaker.settings.domain.interactor.SharingInteractor
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val settingsInteractor: SettingsInteractorInterface,
+    private val settingsInteractor: SettingsInteractor,
     private val sharingInteractor: SharingInteractor
 ) : ViewModel() {
 

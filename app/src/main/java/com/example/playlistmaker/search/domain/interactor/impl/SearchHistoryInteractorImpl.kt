@@ -5,8 +5,7 @@ import com.example.playlistmaker.search.domain.interactor.SearchHistoryInteracto
 import com.example.playlistmaker.search.domain.model.Track
 
 class SearchHistoryInteractorImpl(
-private val searchHistoryRepository: SearchHistoryRepository
-) : SearchHistoryInteractor {
+    private val searchHistoryRepository: SearchHistoryRepository) : SearchHistoryInteractor {
 
     override suspend fun addTrackToHistory(track: Track) {
         searchHistoryRepository.addTrackToHistory(track)

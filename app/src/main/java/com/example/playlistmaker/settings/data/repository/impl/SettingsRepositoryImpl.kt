@@ -2,7 +2,7 @@ package com.example.playlistmaker.settings.data.repository.impl
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.playlistmaker.settings.domain.repository.SettingsRepository
+import com.example.playlistmaker.settings.data.repository.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -20,4 +20,3 @@ class SettingsRepositoryImpl(private val context: Context) : SettingsRepository 
         sharedPreferences.getBoolean(darkThemeKey, false)
     }
 }
-
