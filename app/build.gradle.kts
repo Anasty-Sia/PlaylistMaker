@@ -60,4 +60,6 @@ dependencies {
     implementation(libs.bundles.androidx)
     implementation (libs.glide)
     annotationProcessor (libs.glide.compiler)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.activity.ktx)
 }
