@@ -62,4 +62,6 @@ dependencies {
     annotationProcessor (libs.glide.compiler)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.activity.ktx)
+    implementation(libs.koin.android)
+
 }

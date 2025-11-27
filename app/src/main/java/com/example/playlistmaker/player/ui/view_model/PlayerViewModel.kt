@@ -13,6 +13,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class PlayerViewModel(
+
     private val playerInteractor: PlayerInteractor) : ViewModel() {
 
     private val _playbackState = MutableLiveData<PlaybackState>()

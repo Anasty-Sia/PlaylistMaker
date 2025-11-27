@@ -14,8 +14,12 @@ class ExternalActionsRepositoryImpl(private val context: Context) : ExternalActi
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, shareData.text)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        context.startActivity(Intent.createChooser(shareIntent, shareData.title))
+        val chooserIntent = Intent.createChooser(shareIntent, shareData.title).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(chooserIntent)
     }
 
     override fun openSupport(supportData: SupportData) {
@@ -24,6 +28,7 @@ class ExternalActionsRepositoryImpl(private val context: Context) : ExternalActi
             putExtra(Intent.EXTRA_EMAIL, arrayOf(supportData.email))
             putExtra(Intent.EXTRA_SUBJECT, supportData.subject)
             putExtra(Intent.EXTRA_TEXT, supportData.message)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(supportIntent)
     }
@@ -31,6 +36,7 @@ class ExternalActionsRepositoryImpl(private val context: Context) : ExternalActi
     override fun openTerms(termsData: TermsData) {
         val termsIntent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse(termsData.url)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         context.startActivity(termsIntent)
     }
