@@ -6,7 +6,7 @@ import android.net.Uri
 import com.example.playlistmaker.settings.domain.model.ShareData
 import com.example.playlistmaker.settings.domain.model.SupportData
 import com.example.playlistmaker.settings.domain.model.TermsData
-import com.example.playlistmaker.settings.data.repository.ExternalActionsRepository
+import com.example.playlistmaker.settings.domain.repository.ExternalActionsRepository
 
 class ExternalActionsRepositoryImpl(private val context: Context) : ExternalActionsRepository {
 

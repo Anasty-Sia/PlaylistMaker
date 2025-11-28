@@ -18,6 +18,7 @@ data class Track(
     val country: String? = null,
     val previewUrl: String? = null
 ): Parcelable {
+
     fun getFormattedTime(): String {
         return if (trackTimeMillis != null) {
             SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackTimeMillis)

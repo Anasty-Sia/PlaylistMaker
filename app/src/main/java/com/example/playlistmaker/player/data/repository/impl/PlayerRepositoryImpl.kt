@@ -6,17 +6,16 @@ import com.example.playlistmaker.player.domain.repository.PlayerRepository
 import java.io.IOException
 
 
+class PlayerRepositoryImpl(  private val mediaPlayer: MediaPlayer): PlayerRepository {
 
-class PlayerRepositoryImpl : PlayerRepository {
 
-    private var mediaPlayer: MediaPlayer? = null
     private var currentState: PlaybackState = PlaybackState.DEFAULT
 
     override fun preparePlayer(trackUrl: String) {
-        releasePlayer()
+        try {
+            mediaPlayer.reset()
 
-        mediaPlayer = MediaPlayer().apply {
-            try {
+            mediaPlayer.apply {
                 setDataSource(trackUrl)
                 setOnPreparedListener {
                     currentState = PlaybackState.PREPARED
@@ -29,15 +28,16 @@ class PlayerRepositoryImpl : PlayerRepository {
                     false
                 }
                 prepareAsync()
-            } catch (e: IOException) {
-                e.printStackTrace()
-                currentState = PlaybackState.ERROR("IOException: ${e.message}")
             }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            currentState = PlaybackState.ERROR("IOException: ${e.message}")
         }
+
     }
 
     override fun startPlayer() {
-        mediaPlayer?.let { player ->
+        mediaPlayer.let { player ->
             if (!player.isPlaying) {
                 player.start()
                 currentState = PlaybackState.PLAYING
@@ -46,7 +46,7 @@ class PlayerRepositoryImpl : PlayerRepository {
     }
 
     override fun pausePlayer() {
-        mediaPlayer?.let { player ->
+        mediaPlayer.let { player ->
             if (player.isPlaying) {
                 player.pause()
                 currentState = PlaybackState.PAUSED
@@ -55,8 +55,12 @@ class PlayerRepositoryImpl : PlayerRepository {
     }
 
     override fun releasePlayer() {
-        mediaPlayer?.release()
-        mediaPlayer = null
+        mediaPlayer.let { player ->
+            if (player.isPlaying) {
+                player.stop()
+            }
+            player.reset()
+        }
         currentState = PlaybackState.DEFAULT
     }
 
@@ -65,10 +69,10 @@ class PlayerRepositoryImpl : PlayerRepository {
     }
 
     override fun getCurrentPosition(): Int {
-        return mediaPlayer?.currentPosition ?: 0
+        return mediaPlayer.currentPosition
     }
 
     override fun getDuration(): Int {
-        return mediaPlayer?.duration ?: 0
+        return mediaPlayer.duration
     }
 }

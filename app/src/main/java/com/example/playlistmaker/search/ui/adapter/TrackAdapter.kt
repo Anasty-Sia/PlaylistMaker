@@ -21,6 +21,7 @@ class TrackAdapter(
     }
 
     override fun onBindViewHolder(holder: TrackViewHolder, position: Int) {
+
         holder.bind(data[position])
         holder.itemView.setOnClickListener {
             onItemClick(data[position])

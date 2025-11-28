@@ -3,7 +3,7 @@ package com.example.playlistmaker.settings.domain.interactor.impl
 
 import com.example.playlistmaker.R
 import com.example.playlistmaker.settings.data.provider.ResourcesProvider
-import com.example.playlistmaker.settings.data.repository.ExternalActionsRepository
+import com.example.playlistmaker.settings.domain.repository.ExternalActionsRepository
 import com.example.playlistmaker.settings.domain.interactor.SharingInteractor
 import com.example.playlistmaker.settings.domain.model.ShareData
 import com.example.playlistmaker.settings.domain.model.SupportData

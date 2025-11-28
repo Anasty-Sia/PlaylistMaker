@@ -52,6 +52,7 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.darkThemeSwitch.setOnCheckedChangeListener { _, isChecked ->
             viewModel.onThemeSwitchChanged(isChecked)
+            setDarkTheme(isChecked)
         }
 
         binding.iconShare.setOnClickListener {
@@ -70,7 +71,6 @@ class SettingsActivity : AppCompatActivity() {
     private fun observeViewModel() {
         viewModel.darkThemeEnabled.observe(this) { isEnabled ->
             binding.darkThemeSwitch.isChecked = isEnabled
-            setDarkTheme(isEnabled)
         }
     }
 

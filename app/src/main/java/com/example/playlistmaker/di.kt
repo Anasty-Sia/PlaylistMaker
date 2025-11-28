@@ -1,5 +1,6 @@
 package com.example.playlistmaker.di
 
+import android.media.MediaPlayer
 import com.example.playlistmaker.data.network.iTunesSearchAPI
 import com.example.playlistmaker.player.data.repository.impl.PlayerRepositoryImpl
 import com.example.playlistmaker.player.domain.interactor.PlayerInteractor
@@ -18,26 +19,31 @@ import com.example.playlistmaker.search.domain.repository.TrackRepository
 import com.example.playlistmaker.search.ui.view_model.SearchViewModel
 import com.example.playlistmaker.settings.data.provider.ResourcesProvider
 import com.example.playlistmaker.settings.data.provider.impl.ResourcesProviderImpl
-import com.example.playlistmaker.settings.data.repository.ExternalActionsRepository
-import com.example.playlistmaker.settings.data.repository.SettingsRepository
+import com.example.playlistmaker.settings.domain.repository.ExternalActionsRepository
+import com.example.playlistmaker.settings.domain.repository.SettingsRepository
 import com.example.playlistmaker.settings.data.repository.impl.ExternalActionsRepositoryImpl
 import com.example.playlistmaker.settings.data.repository.impl.SettingsRepositoryImpl
 import com.example.playlistmaker.settings.domain.interactor.SettingsInteractor
 import com.example.playlistmaker.settings.domain.interactor.SharingInteractor
 import com.example.playlistmaker.settings.domain.interactor.impl.SharingInteractorImpl
 import com.example.playlistmaker.settings.ui.view_model.SettingsViewModel
+import com.google.gson.Gson
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+
+
 private const val ITUNES_BASE_URL = "https://itunes.apple.com"
 
 val networkModule = module {
+    single<Gson> { Gson() }
+
     single<Retrofit> {
         Retrofit.Builder()
             .baseUrl(ITUNES_BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(get()))
             .build()
     }
 
@@ -48,14 +54,21 @@ val networkModule = module {
 
 val dataModule = module {
 
-    single<PlayerRepository> { PlayerRepositoryImpl() }
+   // single<MediaPlayer> { MediaPlayer() }
+
+    factory<MediaPlayer> {
+        MediaPlayer()
+    }
+
+    single<PlayerRepository> {
+        PlayerRepositoryImpl(mediaPlayer = get()) }
 
     single<TrackRepository> {
-        TrackRepositoryImpl(get())
+        TrackRepositoryImpl(get(),gson = get())
     }
 
     single<SearchHistoryRepository> {
-        SearchHistoryRepositoryImpl(context = get())
+        SearchHistoryRepositoryImpl(context = get(),gson = get())
     }
 
     single<SettingsRepository> {
@@ -74,6 +87,7 @@ val dataModule = module {
 }
 
 val domainModule = module {
+
 
     factory<PlayerInteractor> {
         PlayerInteractorImpl(get())
@@ -116,6 +130,7 @@ val viewModelModule = module {
         )
     }
 }
+
 
 
 val appModule = listOf(networkModule, dataModule, domainModule, viewModelModule)
