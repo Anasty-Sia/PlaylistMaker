@@ -12,33 +12,34 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
+data class PlayerState(
+    val playbackState: PlaybackState = PlaybackState.PREPARED,
+    val isFavorite: Boolean = false,
+    val currentPosition: Int = 0
+)
+
 class PlayerViewModel(
+
     private val playerInteractor: PlayerInteractor) : ViewModel() {
 
-    private val _playbackState = MutableLiveData<PlaybackState>()
-    val playbackState: LiveData<PlaybackState> = _playbackState
-
-    private val _isFavorite = MutableLiveData<Boolean>()
-    val isFavorite: LiveData<Boolean> = _isFavorite
-
-    private val _currentPosition = MutableLiveData<Int>()
-    val currentPosition: LiveData<Int> = _currentPosition
+    private val _playerState  = MutableLiveData<PlayerState>()
+    val playerState: LiveData<PlayerState> = _playerState
 
     private var progressJob: Job? = null
     private lateinit var currentTrack: Track
 
     init {
-        _isFavorite.value = false
+        _playerState.value = PlayerState()
     }
 
     fun preparePlayer(track: Track) {
         currentTrack = track
+        _playerState.value = PlayerState(playbackState = PlaybackState.PREPARED)
         playerInteractor.preparePlayer(track)
-        _playbackState.value = PlaybackState.PREPARED
     }
 
     fun playPause() {
-        when (val currentState = _playbackState.value) {
+        when (_playerState.value?.playbackState) {
             is PlaybackState.PLAYING -> pausePlayback()
             is PlaybackState.PREPARED, is PlaybackState.PAUSED, is PlaybackState.COMPLETED -> startPlayback()
             else -> {}
@@ -48,24 +49,27 @@ class PlayerViewModel(
     private fun startPlayback() {
         playerInteractor.startPlayer()
         startProgressUpdates()
-        _playbackState.value = PlaybackState.PLAYING
+        _playerState.value = _playerState.value?.copy(playbackState = PlaybackState.PLAYING)
     }
 
     private fun pausePlayback() {
         playerInteractor.pausePlayer()
         progressJob?.cancel()
-        _playbackState.value = PlaybackState.PAUSED
+        _playerState.value = _playerState.value?.copy(playbackState = PlaybackState.PAUSED)
     }
 
     fun stopPlayback() {
         playerInteractor.pausePlayer()
         progressJob?.cancel()
-        _playbackState.value = PlaybackState.PREPARED
+        _playerState.value = _playerState.value?.copy(
+            playbackState = PlaybackState.PREPARED,
+            currentPosition = 0)
     }
 
     fun toggleFavorite() {
-        _isFavorite.value = !(_isFavorite.value ?: false)
-
+        _playerState.value = _playerState.value?.copy(
+            isFavorite = !(_playerState.value?.isFavorite ?: false)
+        )
     }
 
     private fun startProgressUpdates() {
@@ -73,15 +77,15 @@ class PlayerViewModel(
         progressJob = viewModelScope.launch {
             while (isActive) {
                 val position = playerInteractor.getCurrentPosition()
-                _currentPosition.value = position
+                _playerState.value = _playerState.value?.copy(currentPosition = position)
 
                 when (playerInteractor.getPlaybackState()) {
                     is PlaybackState.COMPLETED -> {
-                        _playbackState.value = PlaybackState.COMPLETED
+                        _playerState.value = _playerState.value?.copy(playbackState = PlaybackState.COMPLETED)
                         progressJob?.cancel()
                     }
                     is PlaybackState.ERROR -> {
-                        _playbackState.value = playerInteractor.getPlaybackState()
+                        _playerState.value = _playerState.value?.copy(playbackState = playerInteractor.getPlaybackState())
                         progressJob?.cancel()
                     }
                     else -> {

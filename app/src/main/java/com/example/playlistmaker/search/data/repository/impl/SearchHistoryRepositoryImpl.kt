@@ -9,11 +9,10 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class SearchHistoryRepositoryImpl(private val context: Context) : SearchHistoryRepository {
+class SearchHistoryRepositoryImpl(private val context: Context,  private val gson: Gson ) : SearchHistoryRepository {
 
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("SearchHistory", Context.MODE_PRIVATE)
-    private val gson = Gson()
 
 
     override suspend fun addTrackToHistory(track: Track) = withContext(Dispatchers.IO) {

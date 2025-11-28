@@ -1,4 +1,4 @@
-package com.example.playlistmaker.settings.data.repository
+package com.example.playlistmaker.settings.domain.repository
 
 import com.example.playlistmaker.settings.domain.model.ShareData
 import com.example.playlistmaker.settings.domain.model.SupportData

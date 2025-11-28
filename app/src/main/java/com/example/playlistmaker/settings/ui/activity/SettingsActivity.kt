@@ -4,25 +4,22 @@ package com.example.playlistmaker.settings.ui.activity
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
-import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivitySettingsBinding
 import com.example.playlistmaker.settings.ui.view_model.SettingsViewModel
 import com.google.android.material.appbar.MaterialToolbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySettingsBinding
-    private val viewModel: SettingsViewModel by viewModels {
-        Creator.provideSettingsViewModelFactory(this)
-    }
+    private val viewModel: SettingsViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +52,7 @@ class SettingsActivity : AppCompatActivity() {
 
         binding.darkThemeSwitch.setOnCheckedChangeListener { _, isChecked ->
             viewModel.onThemeSwitchChanged(isChecked)
+            setDarkTheme(isChecked)
         }
 
         binding.iconShare.setOnClickListener {
@@ -73,7 +71,6 @@ class SettingsActivity : AppCompatActivity() {
     private fun observeViewModel() {
         viewModel.darkThemeEnabled.observe(this) { isEnabled ->
             binding.darkThemeSwitch.isChecked = isEnabled
-            setDarkTheme(isEnabled)
         }
     }
 

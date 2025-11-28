@@ -3,29 +3,25 @@ package com.example.playlistmaker.player.ui.activity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.example.playlistmaker.Creator
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.ActivityPlayerBinding
+import com.example.playlistmaker.player.domain.model.PlaybackState
 import com.example.playlistmaker.player.ui.view_model.PlayerViewModel
 import com.example.playlistmaker.search.domain.model.Track
 import com.google.android.material.appbar.MaterialToolbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlayerBinding
 
-    private val viewModel: PlayerViewModel by viewModels {
-        Creator.providePlayerViewModelFactory()
-    }
-
-
+    private val viewModel: PlayerViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +36,10 @@ class PlayerActivity : AppCompatActivity() {
         setupSystemBars()
         setupPlayerUI(track)
         setupBackButton()
-        observeViewModel()
+
 
         viewModel.preparePlayer(track)
+        observeViewModel()
     }
 
     private fun setupSystemBars() {
@@ -113,36 +110,24 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.playbackState.observe(this) { state ->
-            when (state) {
-                is com.example.playlistmaker.player.domain.model.PlaybackState.PREPARED -> {
-                    updatePlayButtonState(isPlaying = false)
+        viewModel.playerState.observe(this) { state ->
+            updatePlayButtonState(state.playbackState is PlaybackState.PLAYING)
+            updateFavoriteButton(state.isFavorite)
+            binding.tvTrackTimePlayer.text = formatTime(state.currentPosition)
+
+            when (state.playbackState) {
+                is PlaybackState.PREPARED -> {
                     binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
                 }
-                is com.example.playlistmaker.player.domain.model.PlaybackState.PLAYING -> {
-                    updatePlayButtonState(isPlaying = true)
-                }
-                is com.example.playlistmaker.player.domain.model.PlaybackState.PAUSED -> {
-                    updatePlayButtonState(isPlaying = false)
-                }
-                is com.example.playlistmaker.player.domain.model.PlaybackState.COMPLETED -> {
-                    updatePlayButtonState(isPlaying = false)
+                is PlaybackState.COMPLETED -> {
                     binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
                 }
-                is com.example.playlistmaker.player.domain.model.PlaybackState.ERROR -> {
-                    updatePlayButtonState(isPlaying = false)
-                    // Показать ошибку, если нужно
+                is PlaybackState.ERROR -> {
+
+                    binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
                 }
                 else -> {}
             }
-        }
-
-        viewModel.currentPosition.observe(this) { position ->
-            binding.tvTrackTimePlayer.text = formatTime(position)
-        }
-
-        viewModel.isFavorite.observe(this) { isFavorite ->
-            updateFavoriteButton(isFavorite)
         }
     }
 
