@@ -2,6 +2,8 @@ package com.example.playlistmaker.di
 
 import android.media.MediaPlayer
 import com.example.playlistmaker.data.network.iTunesSearchAPI
+import com.example.playlistmaker.library.ui.view_model.FavoriteTracksViewModel
+import com.example.playlistmaker.library.ui.view_model.PlaylistsViewModel
 import com.example.playlistmaker.player.data.repository.impl.PlayerRepositoryImpl
 import com.example.playlistmaker.player.domain.interactor.PlayerInteractor
 import com.example.playlistmaker.player.domain.interactor.impl.PlayerInteractorImpl
@@ -129,6 +131,9 @@ val viewModelModule = module {
             sharingInteractor = get()
         )
     }
+
+    viewModel { FavoriteTracksViewModel() }
+    viewModel { PlaylistsViewModel() }
 }
 
 

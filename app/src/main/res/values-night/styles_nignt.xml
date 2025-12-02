@@ -309,5 +309,20 @@
         <item name="android:background">@color/YP_black</item>
     </style>
 
+
+    <style name="MyTabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">14sp</item>
+        <item name="fontFamily">@font/ys_display_medium</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="textAllCaps">false</item>
+    </style>
+
+    <style name="InfoText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/YP_black</item>
+        <item name="android:backgroundTint">@null</item>
+    </style>
+
 </resources>
 
