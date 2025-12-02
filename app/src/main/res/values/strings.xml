@@ -14,6 +14,8 @@
     <string name="email_message">Спасибо разработчикам и разработчицам за крутое приложение!</string>
     <string name="terms_of_service_url">https://yandex.ru/legal/praktikum_termsofuse/</string>
     <string name="no_results">Ничего не нашлось</string>
+    <string name="no_tracks_favorite">Ваша медиатека пуста</string>
+    <string name="no_playlists">Вы не создали\nни одного плейлиста</string>
     <string name="server_error">Проблемы со связью\n\nЗагрузка не удалась.Проверьте подключение к интернету</string>
     <string name="retry">Обновить</string>
     <string name="search_history">Вы искали</string>
@@ -28,6 +30,9 @@
     <string name="add_to_favorites">Добавить в избранное</string>
     <string name="duration">Длительность</string>
     <string name="player_album_image_description">Обложка альбома</string>
+    <string name="favorite_tracks">Избранные треки</string>
+    <string name="playlists">Плейлисты</string>
+    <string name="new_playlist">Новый плейлист</string>
 
 
 </resources>
