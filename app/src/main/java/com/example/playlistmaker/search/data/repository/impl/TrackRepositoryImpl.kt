@@ -5,10 +5,11 @@ import com.example.playlistmaker.data.network.iTunesSearchAPI
 import com.example.playlistmaker.search.domain.model.Track
 import com.example.playlistmaker.search.domain.repository.TrackRepository
 import com.example.playlistmaker.search.data.repository.mapper.TrackMapper
+import com.google.gson.Gson
 import retrofit2.Response
 import kotlin.coroutines.cancellation.CancellationException
 
-class TrackRepositoryImpl(private val iTunesService: iTunesSearchAPI) : TrackRepository {
+class TrackRepositoryImpl(private val iTunesService: iTunesSearchAPI, private val gson: Gson) : TrackRepository {
 
     override suspend fun searchTracks(query: String): List<Track> {
         try {

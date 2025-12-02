@@ -5,28 +5,25 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.playlistmaker.Creator
 import com.example.playlistmaker.databinding.ActivitySearchBinding
 import com.example.playlistmaker.player.ui.activity.PlayerActivity
 import com.example.playlistmaker.search.ui.adapter.TrackAdapter
 import com.example.playlistmaker.search.ui.view_model.SearchState
 import com.example.playlistmaker.search.ui.view_model.SearchViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class SearchActivity : AppCompatActivity() {
 
 
     private lateinit var binding: ActivitySearchBinding
-    private val viewModel: SearchViewModel by viewModels {
-        Creator.provideSearchViewModelFactory(this)
-    }
+    private val viewModel: SearchViewModel by viewModel()
 
     private val searchAdapter = TrackAdapter(emptyList()) { track -> onTrackClick(track) }
     private val historyAdapter = TrackAdapter(emptyList()) { track -> onTrackClick(track) }
@@ -42,6 +39,7 @@ class SearchActivity : AppCompatActivity() {
         setupViews()
         setupSearchField()
         observeViewModel()
+
     }
 
     private fun setupSystemBars() {
