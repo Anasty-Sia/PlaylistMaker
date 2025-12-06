@@ -1,6 +1,8 @@
 [versions]
 agp = "8.13.1"
 fragmentKtx = "1.8.9"
+fragmentKtxVersion = "1.8.9"
+googleMaterial = "1.13.0"
 koinAndroid = "4.1.1"
 kotlin = "2.2.21"
 coreKtx = "1.17.0"
@@ -10,16 +12,20 @@ espressoCore = "3.7.0"
 appcompat = "1.7.1"
 lifecycleViewmodelKtx = "2.10.0"
 material = "1.13.0"
-activity = "1.12.0"
+activity = "1.12.1"
 constraintlayout = "2.2.1"
 appcompatVersion = "1.7.1"
 
 gson = "2.13.2"
 materialVersion = "1.13.0"
+navigationFragmentKtxVersion = "2.9.6"
+navigationUiKtxVersion = "2.9.6"
 retrofit = "3.0.0"
 glide = "5.0.5"
 recyclerview = "1.4.0"
 viewpager2 = "1.1.0"
+navigationFragmentKtx = "2.9.6"
+navigationUiKtx = "2.9.6"
 
 
 
@@ -27,8 +33,12 @@ viewpager2 = "1.1.0"
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
+androidx-fragment-ktx-v156 = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtxVersion" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-navigation-fragment-ktx-v253 = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtxVersion" }
+androidx-navigation-ui-ktx-v253 = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtxVersion" }
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
+google-material-v180 = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -46,6 +56,8 @@ retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
+androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
 
 
 [bundles]

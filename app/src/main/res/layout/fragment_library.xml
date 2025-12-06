@@ -8,15 +8,15 @@
     android:orientation="vertical"
     android:theme="@style/Base.Theme.PlaylistMaker"
     style="@style/background_style"
-    tools:context=".library.ui.activity.LibraryActivity">
+    tools:context=".library.ui.activity.LibraryFragment">
 
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/back_library"
+        android:id="@+id/back_b"
+        app:navigationIcon="@null"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         app:contentInsetStartWithNavigation="64dp"
-        app:navigationIcon="@drawable/ic_back_arrow_24"
         app:title="@string/library"
         app:titleTextAppearance="@style/HeaderTextStyle"
         app:titleTextColor="?attr/colorPrimary"/>

@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:theme="@style/Base.Theme.PlaylistMaker"
     style="@style/background_style"
-    tools:context=".settings.ui.activity.SettingsActivity">
+    tools:context=".settings.ui.activity.SettingsFragment">
 
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:contentInsetStartWithNavigation="12dp"
-        app:navigationIcon="@drawable/ic_back_arrow_24"
+        app:navigationIcon="@null"
         app:title="@string/settings"
         app:titleTextAppearance="@style/content" />
 
@@ -29,7 +29,7 @@
         android:id="@+id/icon_share"
         style="@style/SettingsItemStyle"
         android:drawableEnd="@drawable/ic_share"
-        android:text="@string/share"/>
+        android:text="@string/share" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/icon_support"

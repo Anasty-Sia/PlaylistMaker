@@ -11,16 +11,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FavoriteTracksFragment : Fragment() {
 
-    companion object {
-        private const val ARG_POSITION = "position"
-
-        fun newInstance(position: Int) = FavoriteTracksFragment().apply {
-            arguments = Bundle().apply {
-                putInt(ARG_POSITION, position)
-            }
-        }
-    }
-
     private var _binding: FragmentFavoriteTracksBinding? = null
     private val binding get() = _binding!!
 

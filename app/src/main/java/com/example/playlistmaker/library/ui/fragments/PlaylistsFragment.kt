@@ -11,16 +11,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlaylistsFragment : Fragment() {
 
-    companion object {
-        private const val ARG_POSITION = "position"
-
-        fun newInstance(position: Int) = PlaylistsFragment().apply {
-            arguments = Bundle().apply {
-                putInt(ARG_POSITION, position)
-            }
-        }
-    }
-
     private var _binding: FragmentPlaylistsBinding? = null
     private val binding get() = _binding!!
 

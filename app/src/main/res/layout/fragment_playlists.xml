@@ -16,17 +16,10 @@
 
         <Button
             android:id="@+id/createPlaylistButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/new_playlist"
-            android:textSize="14sp"
-            android:paddingVertical="10dp"
-            android:paddingHorizontal="14dp"
-            android:fontFamily="@font/ys_display_medium"
-            android:textAllCaps="false"
-            android:layout_marginTop="16dp"
             android:background="@drawable/button_retry_background"
-            app:backgroundTint="?attr/colorPrimary"/>
+            app:backgroundTint="?attr/colorPrimary"
+            style="@style/ButtonPlaylist"/>
 
         <ImageView
             android:id="@+id/emptyResultsIcon"
@@ -37,13 +30,8 @@
 
         <TextView
             android:id="@+id/emptyResultsText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="@string/no_playlists"
-            android:gravity="center"
             style="@style/NoTraksText"/>
-
-
 
     </LinearLayout>
 

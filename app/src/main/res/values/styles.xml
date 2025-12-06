@@ -353,13 +353,24 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
         <item name="android:orientation">vertical</item>
-
-
     </style>
 
+    <style name="ButtonPlaylist">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="fontFamily">@font/ys_display_medium</item>
+        <item name="android:paddingVertical">10dp</item>
+        <item name="android:paddingHorizontal">14dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
 
+    <style name="background_style_root">
+        <item name="android:background">@color/white</item>
 
-
+    </style>
 
 </resources>
 
