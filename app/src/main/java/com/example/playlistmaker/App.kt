@@ -23,22 +23,28 @@ class App: Application() {
 
     }
     private fun setupAppTheme() {
-            try {
+        try {
 
-                val isDarkTheme =  runBlocking {
-                    val settingsInteractor = getKoin().get<SettingsInteractor>()
-                    settingsInteractor.isDarkThemeEnabled()
-                }
-
-                AppCompatDelegate.setDefaultNightMode(
-                    if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES
-                    else AppCompatDelegate.MODE_NIGHT_NO
-                )
-            } catch (e: Exception) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            val isDarkTheme =  runBlocking {
+                val settingsInteractor = getKoin().get<SettingsInteractor>()
+                settingsInteractor.isDarkThemeEnabled()
             }
+
+            AppCompatDelegate.setDefaultNightMode(
+                if (isDarkTheme) AppCompatDelegate.MODE_NIGHT_YES
+                else AppCompatDelegate.MODE_NIGHT_NO
+            )
+        } catch (e: Exception) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         }
     }
+}
+
+
+
+
+
+
 
 
 

@@ -7,15 +7,15 @@
     android:orientation="vertical"
     android:theme="@style/Base.Theme.PlaylistMaker"
     style="@style/background_style"
-    tools:context=".search.data.repository.impl.SearchHistoryRepositoryImpl">
+    tools:context=".search.ui.activity.SearchFragment">
 
 
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/back_search"
+        android:id="@+id/back_b"
+        app:navigationIcon="@null"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:contentInsetStartWithNavigation="12dp"
-        app:navigationIcon="@drawable/ic_back_arrow_24"
+        app:contentInsetStartWithNavigation="16dp"
         app:title="@string/search"
         app:titleTextAppearance="@style/content" />
 
@@ -133,6 +133,9 @@
             style="@style/RefreshButtonStyle"
             android:text="@string/retry" />
     </LinearLayout>
+
+
+
 
 
 </LinearLayout>

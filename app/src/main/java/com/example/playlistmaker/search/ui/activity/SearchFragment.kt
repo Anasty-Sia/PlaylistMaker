@@ -1,72 +1,73 @@
 package com.example.playlistmaker.search.ui.activity
 
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.playlistmaker.databinding.ActivitySearchBinding
-import com.example.playlistmaker.player.ui.activity.PlayerActivity
+import com.example.playlistmaker.databinding.FragmentSearchBinding
 import com.example.playlistmaker.search.ui.adapter.TrackAdapter
 import com.example.playlistmaker.search.ui.view_model.SearchState
 import com.example.playlistmaker.search.ui.view_model.SearchViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+class SearchFragment : Fragment() {
 
-class SearchActivity : AppCompatActivity() {
+    private var _binding: FragmentSearchBinding? = null
+    private val binding get() = _binding!!
 
-
-    private lateinit var binding: ActivitySearchBinding
     private val viewModel: SearchViewModel by viewModel()
 
     private val searchAdapter = TrackAdapter(emptyList()) { track -> onTrackClick(track) }
     private val historyAdapter = TrackAdapter(emptyList()) { track -> onTrackClick(track) }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        enableEdgeToEdge()
-        binding = ActivitySearchBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        setupSystemBars()
+        setupStatusBarPadding()
         setupViews()
         setupSearchField()
         observeViewModel()
-
     }
 
-    private fun setupSystemBars() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.backSearch) { view, insets ->
+    private fun setupStatusBarPadding() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            binding.backB.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 topMargin = systemBars.top
             }
+
             insets
         }
     }
 
     private fun setupViews() {
-        binding.rvTrack.layoutManager = LinearLayoutManager(this)
+        binding.rvTrack.layoutManager = LinearLayoutManager(requireContext())
         binding.rvTrack.adapter = searchAdapter
-        binding.rvHistory.layoutManager = LinearLayoutManager(this)
+
+        binding.rvHistory.layoutManager = LinearLayoutManager(requireContext())
         binding.rvHistory.adapter = historyAdapter
 
         binding.clearHistoryButton.setOnClickListener {
             viewModel.clearSearchHistory()
         }
 
-        binding.backSearch.setNavigationOnClickListener {
-            finish()
-        }
-
-        binding.errorView.setOnClickListener {
+        binding.refreshButton.setOnClickListener {
             val query = binding.inputSearch.text?.toString()
             if (!query.isNullOrEmpty()) {
                 viewModel.searchDebounced(query)
@@ -88,7 +89,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.searchState.observe(this) { state ->
+        viewModel.searchState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is SearchState.Default -> showDefaultState()
                 is SearchState.Loading -> showLoading()
@@ -100,13 +101,13 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun onTrackClick(track: com.example.playlistmaker.search.domain.model.Track) {
-        viewModel.addTrackToHistory(track)
-        val intent = Intent(this, PlayerActivity::class.java).apply {
-            putExtra(PlayerActivity.EXTRA_TRACK, track)
-        }
-        startActivity(intent)
+   private fun onTrackClick(track: com.example.playlistmaker.search.domain.model.Track) {
+         viewModel.addTrackToHistory(track)
+
+        val action = SearchFragmentDirections.actionSearchFragmentToPlayerFragment(track)
+        findNavController().navigate(action)
     }
+
 
     private fun showDefaultState() {
         binding.historyContainer.visibility = View.GONE
@@ -158,5 +159,10 @@ class SearchActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.GONE
         binding.errorView.visibility = View.VISIBLE
         binding.errorText.text = message
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

@@ -21,11 +21,19 @@ class SettingsViewModel(
         loadThemeSetting()
     }
 
-    private fun loadThemeSetting() {
+      fun loadThemeSetting() {
         viewModelScope.launch {
-            _darkThemeEnabled.postValue(settingsInteractor.isDarkThemeEnabled())
+            try {
+                val isDarkTheme = settingsInteractor.isDarkThemeEnabled()
+                _darkThemeEnabled.value= isDarkTheme
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _darkThemeEnabled.postValue(false)
+            }
         }
-    }
+      }
+
+
 
     fun onThemeSwitchChanged(enabled: Boolean) {
         viewModelScope.launch {

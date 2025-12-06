@@ -1,51 +1,54 @@
 package com.example.playlistmaker.player.ui.activity
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.example.playlistmaker.R
-import com.example.playlistmaker.databinding.ActivityPlayerBinding
+import com.example.playlistmaker.databinding.FragmentPlayerBinding
 import com.example.playlistmaker.player.domain.model.PlaybackState
 import com.example.playlistmaker.player.ui.view_model.PlayerViewModel
-import com.example.playlistmaker.search.domain.model.Track
-import com.google.android.material.appbar.MaterialToolbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class PlayerActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityPlayerBinding
+class PlayerFragment : Fragment() {
 
+    private var _binding: FragmentPlayerBinding? = null
+    private val binding get() = _binding!!
+
+    private val args: PlayerFragmentArgs by navArgs()
     private val viewModel: PlayerViewModel by viewModel()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityPlayerBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        val track = intent.getParcelableExtra<Track>(EXTRA_TRACK) ?: run {
-            finish()
-            return
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        setupSystemBars()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupEdgeToEdgeInsets()
+
+        val track = args.track
         setupPlayerUI(track)
-        setupBackButton()
-
 
         viewModel.preparePlayer(track)
         observeViewModel()
     }
 
-    private fun setupSystemBars() {
-        val backButton = findViewById<MaterialToolbar>(R.id.back_player)
-
-        ViewCompat.setOnApplyWindowInsetsListener(backButton) { view, insets ->
+    private fun setupEdgeToEdgeInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.backPlayer) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
                 topMargin = systemBars.top
@@ -54,7 +57,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupPlayerUI(track: Track) {
+    private fun setupPlayerUI(track: com.example.playlistmaker.search.domain.model.Track) {
         binding.tvTrackNamePlayer.text = track.trackName
         binding.tvArtistNamePlayer.text = track.artistName
         binding.tvDurationValue.text = track.getFormattedTime()
@@ -100,17 +103,15 @@ class PlayerActivity : AppCompatActivity() {
         binding.ivAddToFavorites.setOnClickListener {
             viewModel.toggleFavorite()
         }
-    }
 
-    private fun setupBackButton() {
         binding.backPlayer.setNavigationOnClickListener {
             viewModel.stopPlayback()
-            finish()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
 
     private fun observeViewModel() {
-        viewModel.playerState.observe(this) { state ->
+        viewModel.playerState.observe(viewLifecycleOwner) { state ->
             updatePlayButtonState(state.playbackState is PlaybackState.PLAYING)
             updateFavoriteButton(state.isFavorite)
             binding.tvTrackTimePlayer.text = formatTime(state.currentPosition)
@@ -123,7 +124,6 @@ class PlayerActivity : AppCompatActivity() {
                     binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
                 }
                 is PlaybackState.ERROR -> {
-
                     binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
                 }
                 else -> {}
@@ -177,8 +177,12 @@ class PlayerActivity : AppCompatActivity() {
         viewModel.stopPlayback()
     }
 
-    companion object {
-        const val EXTRA_TRACK = "track"
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private companion object {
         const val DEFAULT_TRACK_TIME = "00:00"
     }
 }
