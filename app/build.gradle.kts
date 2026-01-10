@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
+    id("androidx.navigation.safeargs.kotlin")
+
 }
 
 android {
@@ -40,7 +42,6 @@ android {
     buildFeatures {
         viewBinding = true
     }
-
     
 }
 
@@ -53,6 +54,8 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.appcompat)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,6 +71,15 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.viewpager2)
     implementation(libs.material.v180)
+
+
+    implementation (libs.androidx.navigation.fragment.ktx.v253)
+    implementation (libs.androidx.navigation.ui.ktx.v253)
+    implementation (libs.androidx.fragment.ktx.v156)
+    implementation(libs.google.material.v180)
+
+
+
 
 
 }

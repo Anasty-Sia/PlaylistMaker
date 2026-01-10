@@ -323,6 +323,9 @@
         <item name="android:background">@color/YP_black</item>
         <item name="android:backgroundTint">@null</item>
     </style>
+    <style name="background_style_root">
+        <item name="android:background">@color/YP_black</item>
+    </style>
 
 </resources>
 

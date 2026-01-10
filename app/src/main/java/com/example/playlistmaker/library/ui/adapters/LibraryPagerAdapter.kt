@@ -13,8 +13,8 @@ class LibraryPagerAdapter(fragmentActivity: FragmentActivity) :
 
     override fun createFragment(position: Int): Fragment {
         return when(position) {
-            0 -> FavoriteTracksFragment.newInstance(position)
-            1 -> PlaylistsFragment.newInstance(position)
+            0 -> FavoriteTracksFragment()
+            1 -> PlaylistsFragment()
             else -> throw IllegalArgumentException("Invalid position: $position")
         }
     }
