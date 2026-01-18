@@ -7,8 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.search.domain.interactor.SearchHistoryInteractor
 import com.example.playlistmaker.search.domain.interactor.SearchInteractor
 import com.example.playlistmaker.search.domain.model.Track
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -42,13 +44,16 @@ class SearchViewModel(
 
     private suspend fun performSearch(query: String) {
         try {
-            val tracks = searchInteractor.searchTracks(query)
-            if (tracks.isEmpty()) {
-                _searchState.postValue(SearchState.Empty("Ничего не найдено"))
-            } else {
-                _searchState.postValue(SearchState.Content(tracks))
-            }
-        } catch (e: Exception) {
+            searchInteractor.searchTracks(query)
+                .flowOn(Dispatchers.IO)
+                .collect { tracks ->
+                    if (tracks.isEmpty()) {
+                        _searchState.postValue(SearchState.Empty("Ничего не найдено"))
+                    } else {
+                        _searchState.postValue(SearchState.Content(tracks))
+                    }
+                }
+        } catch (e: Exception){
             _searchState.postValue(SearchState.Error("Проверьте подключение к интернету"))
         }
     }
@@ -61,12 +66,14 @@ class SearchViewModel(
 
     fun loadSearchHistory() {
         viewModelScope.launch {
-            val history = searchHistoryInteractor.getSearchHistory()
-            if (history.isNotEmpty()) {
-                _searchState.postValue(SearchState.History(history))
-            } else {
-                _searchState.postValue(SearchState.Default)
-            }
+            searchHistoryInteractor.getSearchHistory()
+                .collect { history ->
+                    if (history.isNotEmpty()) {
+                        _searchState.postValue(SearchState.History(history))
+                    } else {
+                        _searchState.postValue(SearchState.Default)
+                    }
+                }
         }
     }
 

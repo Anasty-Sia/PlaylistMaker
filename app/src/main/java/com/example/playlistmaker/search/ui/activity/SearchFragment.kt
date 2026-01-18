@@ -15,12 +15,18 @@ import com.example.playlistmaker.databinding.FragmentSearchBinding
 import com.example.playlistmaker.search.ui.adapter.TrackAdapter
 import com.example.playlistmaker.search.ui.view_model.SearchState
 import com.example.playlistmaker.search.ui.view_model.SearchViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.lifecycle.lifecycleScope
+
 
 class SearchFragment : Fragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
+    private var clickJob: Job? = null
 
     private val viewModel: SearchViewModel by viewModel()
 
@@ -102,10 +108,13 @@ class SearchFragment : Fragment() {
     }
 
    private fun onTrackClick(track: com.example.playlistmaker.search.domain.model.Track) {
-         viewModel.addTrackToHistory(track)
-
-        val action = SearchFragmentDirections.actionSearchFragmentToPlayerFragment(track)
-        findNavController().navigate(action)
+       clickJob?.cancel()
+       clickJob = lifecycleScope.launch {
+           delay(300)
+           viewModel.addTrackToHistory(track)
+           val action = SearchFragmentDirections.actionSearchFragmentToPlayerFragment(track)
+           findNavController().navigate(action)
+       }
     }
 
 
@@ -163,6 +172,7 @@ class SearchFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        clickJob?.cancel()
         _binding = null
     }
 }

@@ -7,16 +7,26 @@ import com.example.playlistmaker.search.domain.repository.SearchHistoryRepositor
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
 
-class SearchHistoryRepositoryImpl(private val context: Context,  private val gson: Gson ) : SearchHistoryRepository {
+class SearchHistoryRepositoryImpl(private val context: Context,
+                                  private val gson: Gson ) : SearchHistoryRepository {
 
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("SearchHistory", Context.MODE_PRIVATE)
 
+    private val _historyFlow = MutableStateFlow<List<Track>>(emptyList())
+
+    init {
+
+        loadHistory()
+    }
+
 
     override suspend fun addTrackToHistory(track: Track) = withContext(Dispatchers.IO) {
-        val history = getSearchHistory().toMutableList()
+        val history = getHistoryFromStorage().toMutableList()
 
         history.removeAll { it.trackId == track.trackId }
         history.add(0, track)
@@ -26,20 +36,31 @@ class SearchHistoryRepositoryImpl(private val context: Context,  private val gso
         }
 
         saveHistory(history)
+        _historyFlow.value = history
     }
 
-    override suspend fun getSearchHistory(): List<Track> = withContext(Dispatchers.IO) {
+    override fun getSearchHistory(): Flow<List<Track>>{
+        return _historyFlow
+    }
+
+    override suspend fun clearSearchHistory() = withContext(Dispatchers.IO) {
+        sharedPreferences.edit().remove(key).apply()
+        _historyFlow.value = emptyList()
+    }
+
+    private fun loadHistory() {
+        val history = getHistoryFromStorage()
+        _historyFlow.value = history
+    }
+
+    private fun getHistoryFromStorage(): List<Track> {
         val json = sharedPreferences.getString(key, null)
-        return@withContext if (json != null) {
+        return if (json != null) {
             val type = object : TypeToken<List<Track>>() {}.type
             gson.fromJson<List<Track>>(json, type) ?: emptyList()
         } else {
             emptyList()
         }
-    }
-
-    override suspend fun clearSearchHistory() = withContext(Dispatchers.IO) {
-        sharedPreferences.edit().remove(key).apply()
     }
 
     private fun saveHistory(history: List<Track>) {
