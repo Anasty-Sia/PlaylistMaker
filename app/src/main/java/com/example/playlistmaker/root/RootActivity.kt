@@ -1,6 +1,7 @@
 package com.example.playlistmaker.root
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -20,6 +21,18 @@ class RootActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupBottomNavigation()
+    }
+
+    fun animateBottomNavigationView() {
+        binding.bottomNavigationView.visibility = View.GONE
+    }
+
+    fun showBottomNavigationView() {
+        binding.bottomNavigationView.visibility = View.VISIBLE
+    }
+
+    fun hideBottomNavigationView() {
+        binding.bottomNavigationView.visibility = View.GONE
     }
 
     private fun setupBottomNavigation() {

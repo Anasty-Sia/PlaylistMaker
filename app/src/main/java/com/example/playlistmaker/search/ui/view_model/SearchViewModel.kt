@@ -1,5 +1,6 @@
 package com.example.playlistmaker.search.ui.view_model
 
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,11 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.search.domain.interactor.SearchHistoryInteractor
 import com.example.playlistmaker.search.domain.interactor.SearchInteractor
 import com.example.playlistmaker.search.domain.model.Track
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+
 
 class SearchViewModel(
     private val searchInteractor: SearchInteractor,
@@ -23,9 +23,10 @@ class SearchViewModel(
 
     private var searchJob: Job? = null
 
-    init {
+    fun init() {
         loadSearchHistory()
     }
+
 
     fun searchDebounced(query: String) {
         searchJob?.cancel()
@@ -45,7 +46,6 @@ class SearchViewModel(
     private suspend fun performSearch(query: String) {
         try {
             searchInteractor.searchTracks(query)
-                .flowOn(Dispatchers.IO)
                 .collect { tracks ->
                     if (tracks.isEmpty()) {
                         _searchState.postValue(SearchState.Empty("Ничего не найдено"))
@@ -66,6 +66,7 @@ class SearchViewModel(
 
     fun loadSearchHistory() {
         viewModelScope.launch {
+            searchHistoryInteractor.loadHistory()
             searchHistoryInteractor.getSearchHistory()
                 .collect { history ->
                     if (history.isNotEmpty()) {
@@ -83,6 +84,7 @@ class SearchViewModel(
             _searchState.postValue(SearchState.Default)
         }
     }
+
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L

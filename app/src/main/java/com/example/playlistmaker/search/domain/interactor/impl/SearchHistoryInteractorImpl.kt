@@ -8,6 +8,10 @@ import kotlinx.coroutines.flow.Flow
 class SearchHistoryInteractorImpl(
     private val searchHistoryRepository: SearchHistoryRepository) : SearchHistoryInteractor {
 
+    override suspend fun loadHistory() {
+        searchHistoryRepository.loadHistory()
+    }
+
     override suspend fun addTrackToHistory(track: Track) {
         searchHistoryRepository.addTrackToHistory(track)
     }

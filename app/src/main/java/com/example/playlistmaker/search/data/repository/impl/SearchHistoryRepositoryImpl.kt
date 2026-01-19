@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 
 class SearchHistoryRepositoryImpl(private val context: Context,
@@ -19,11 +20,10 @@ class SearchHistoryRepositoryImpl(private val context: Context,
 
     private val _historyFlow = MutableStateFlow<List<Track>>(emptyList())
 
-    init {
-
-        loadHistory()
+    override suspend fun loadHistory() = withContext(Dispatchers.IO) {
+        val history = getHistoryFromStorage()
+        _historyFlow.update { history }
     }
-
 
     override suspend fun addTrackToHistory(track: Track) = withContext(Dispatchers.IO) {
         val history = getHistoryFromStorage().toMutableList()
@@ -36,7 +36,8 @@ class SearchHistoryRepositoryImpl(private val context: Context,
         }
 
         saveHistory(history)
-        _historyFlow.value = history
+        _historyFlow.update {history}
+
     }
 
     override fun getSearchHistory(): Flow<List<Track>>{
@@ -45,12 +46,7 @@ class SearchHistoryRepositoryImpl(private val context: Context,
 
     override suspend fun clearSearchHistory() = withContext(Dispatchers.IO) {
         sharedPreferences.edit().remove(key).apply()
-        _historyFlow.value = emptyList()
-    }
-
-    private fun loadHistory() {
-        val history = getHistoryFromStorage()
-        _historyFlow.value = history
+        _historyFlow.update {emptyList()}
     }
 
     private fun getHistoryFromStorage(): List<Track> {

@@ -15,6 +15,8 @@ import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlayerBinding
 import com.example.playlistmaker.player.domain.model.PlaybackState
 import com.example.playlistmaker.player.ui.view_model.PlayerViewModel
+import com.example.playlistmaker.root.RootActivity
+import com.example.playlistmaker.search.domain.model.Track
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -38,7 +40,9 @@ class PlayerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        (activity as? RootActivity)?.hideBottomNavigationView()
         setupEdgeToEdgeInsets()
+
 
         val track = args.track
         setupPlayerUI(track)
@@ -57,7 +61,7 @@ class PlayerFragment : Fragment() {
         }
     }
 
-    private fun setupPlayerUI(track: com.example.playlistmaker.search.domain.model.Track) {
+    private fun setupPlayerUI(track: Track) {
         binding.tvTrackNamePlayer.text = track.trackName
         binding.tvArtistNamePlayer.text = track.artistName
         binding.tvDurationValue.text = track.getFormattedTime()
@@ -172,6 +176,13 @@ class PlayerFragment : Fragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        // Гарантируем, что панель скрыта при каждом показе фрагмента
+        (activity as? RootActivity)?.hideBottomNavigationView()
+    }
+
+
     override fun onPause() {
         super.onPause()
         viewModel.stopPlayback()
@@ -179,7 +190,13 @@ class PlayerFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        (activity as? RootActivity)?.showBottomNavigationView()
         _binding = null
+    }
+
+    override fun onStop() {
+        super.onStop()
+        (activity as? RootActivity)?.showBottomNavigationView()
     }
 
     private companion object {

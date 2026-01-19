@@ -16,22 +16,33 @@ import com.example.playlistmaker.search.ui.adapter.TrackAdapter
 import com.example.playlistmaker.search.ui.view_model.SearchState
 import com.example.playlistmaker.search.ui.view_model.SearchViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import androidx.lifecycle.lifecycleScope
+import com.example.playlistmaker.root.RootActivity
+import com.example.playlistmaker.search.domain.model.Track
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
-
+@OptIn(FlowPreview::class)
 class SearchFragment : Fragment() {
 
     private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
     private var clickJob: Job? = null
 
+    private var searchAdapter: TrackAdapter? = null
+    private var historyAdapter: TrackAdapter? = null
+
     private val viewModel: SearchViewModel by viewModel()
 
-    private val searchAdapter = TrackAdapter(emptyList()) { track -> onTrackClick(track) }
-    private val historyAdapter = TrackAdapter(emptyList()) { track -> onTrackClick(track) }
+    private val trackClickFlow = MutableSharedFlow<Track>(
+        extraBufferCapacity = 1,
+        replay = 0
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,8 +53,33 @@ class SearchFragment : Fragment() {
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.init()
+
+        trackClickFlow
+            .debounce(CLICK_DEBOUNCE_DELAY)
+            .onEach { track ->
+                (activity as? RootActivity)?.animateBottomNavigationView()
+                viewModel.addTrackToHistory(track)
+                val action = SearchFragmentDirections.actionSearchFragmentToPlayerFragment(track)
+                findNavController().navigate(action)
+            }
+            .launchIn(viewLifecycleOwner.lifecycleScope)
+
+        searchAdapter = TrackAdapter(emptyList()) { track ->
+            lifecycleScope.launch {
+                trackClickFlow.emit(track)
+            }
+        }
+
+        historyAdapter = TrackAdapter(emptyList()) { track ->
+            (activity as? RootActivity)?.animateBottomNavigationView()
+            lifecycleScope.launch {
+                trackClickFlow.emit(track)
+            }
+        }
 
         setupStatusBarPadding()
         setupViews()
@@ -91,6 +127,7 @@ class SearchFragment : Fragment() {
         binding.clearIcon.setOnClickListener {
             binding.inputSearch.text?.clear()
             viewModel.loadSearchHistory()
+
         }
     }
 
@@ -105,16 +142,6 @@ class SearchFragment : Fragment() {
                 is SearchState.History -> showSearchHistory(state.tracks)
             }
         }
-    }
-
-   private fun onTrackClick(track: com.example.playlistmaker.search.domain.model.Track) {
-       clickJob?.cancel()
-       clickJob = lifecycleScope.launch {
-           delay(300)
-           viewModel.addTrackToHistory(track)
-           val action = SearchFragmentDirections.actionSearchFragmentToPlayerFragment(track)
-           findNavController().navigate(action)
-       }
     }
 
 
@@ -134,22 +161,23 @@ class SearchFragment : Fragment() {
         binding.progressBar.visibility = View.VISIBLE
     }
 
-    private fun showResults(tracks: List<com.example.playlistmaker.search.domain.model.Track>) {
+    private fun showResults(tracks: List<Track>) {
         binding.historyContainer.visibility = View.GONE
         binding.emptyResults.visibility = View.GONE
         binding.errorView.visibility = View.GONE
         binding.progressBar.visibility = View.GONE
         binding.rvTrack.visibility = View.VISIBLE
-        searchAdapter.updateData(tracks)
+        searchAdapter?.updateData(tracks)
     }
 
-    private fun showSearchHistory(tracks: List<com.example.playlistmaker.search.domain.model.Track>) {
+    private fun showSearchHistory(tracks: List<Track>) {
         binding.rvTrack.visibility = View.GONE
         binding.emptyResults.visibility = View.GONE
         binding.errorView.visibility = View.GONE
         binding.progressBar.visibility = View.GONE
         binding.historyContainer.visibility = View.VISIBLE
-        historyAdapter.updateData(tracks)
+        historyAdapter?.updateData(tracks)
+
     }
 
     private fun showEmptyState(message: String) {
@@ -173,6 +201,14 @@ class SearchFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         clickJob?.cancel()
+        searchAdapter = null
+        historyAdapter = null
+        binding.rvTrack.adapter = null
+        binding.rvHistory.adapter = null
         _binding = null
+    }
+
+    companion object {
+        private const val CLICK_DEBOUNCE_DELAY = 300L
     }
 }

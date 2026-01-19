@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Base.Theme.PlaylistMaker"
-    tools:context=".root.RootActivity">
+    tools:context=".root.RootActivity"
+    android:animateLayoutChanges="true">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/rootFragmentContainerView"
