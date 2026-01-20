@@ -1,5 +1,6 @@
 package com.example.playlistmaker.search.ui.view_model
 
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
 class SearchViewModel(
     private val searchInteractor: SearchInteractor,
     private val searchHistoryInteractor: SearchHistoryInteractor
@@ -21,9 +23,10 @@ class SearchViewModel(
 
     private var searchJob: Job? = null
 
-    init {
+    fun init() {
         loadSearchHistory()
     }
+
 
     fun searchDebounced(query: String) {
         searchJob?.cancel()
@@ -42,13 +45,15 @@ class SearchViewModel(
 
     private suspend fun performSearch(query: String) {
         try {
-            val tracks = searchInteractor.searchTracks(query)
-            if (tracks.isEmpty()) {
-                _searchState.postValue(SearchState.Empty("Ничего не найдено"))
-            } else {
-                _searchState.postValue(SearchState.Content(tracks))
-            }
-        } catch (e: Exception) {
+            searchInteractor.searchTracks(query)
+                .collect { tracks ->
+                    if (tracks.isEmpty()) {
+                        _searchState.postValue(SearchState.Empty("Ничего не найдено"))
+                    } else {
+                        _searchState.postValue(SearchState.Content(tracks))
+                    }
+                }
+        } catch (e: Exception){
             _searchState.postValue(SearchState.Error("Проверьте подключение к интернету"))
         }
     }
@@ -61,12 +66,15 @@ class SearchViewModel(
 
     fun loadSearchHistory() {
         viewModelScope.launch {
-            val history = searchHistoryInteractor.getSearchHistory()
-            if (history.isNotEmpty()) {
-                _searchState.postValue(SearchState.History(history))
-            } else {
-                _searchState.postValue(SearchState.Default)
-            }
+            searchHistoryInteractor.loadHistory()
+            searchHistoryInteractor.getSearchHistory()
+                .collect { history ->
+                    if (history.isNotEmpty()) {
+                        _searchState.postValue(SearchState.History(history))
+                    } else {
+                        _searchState.postValue(SearchState.Default)
+                    }
+                }
         }
     }
 
@@ -76,6 +84,7 @@ class SearchViewModel(
             _searchState.postValue(SearchState.Default)
         }
     }
+
 
     companion object {
         private const val SEARCH_DEBOUNCE_DELAY = 2000L

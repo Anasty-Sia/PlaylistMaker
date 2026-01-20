@@ -6,26 +6,27 @@ import com.example.playlistmaker.search.domain.model.Track
 import com.example.playlistmaker.search.domain.repository.TrackRepository
 import com.example.playlistmaker.search.data.repository.mapper.TrackMapper
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import retrofit2.Response
-import kotlin.coroutines.cancellation.CancellationException
+
 
 class TrackRepositoryImpl(private val iTunesService: iTunesSearchAPI, private val gson: Gson) : TrackRepository {
 
-    override suspend fun searchTracks(query: String): List<Track> {
+    override fun searchTracks(query: String): Flow<List<Track>> = flow{
         try {
             val response: Response<TrackResponseDto> = iTunesService.search(query)
             if (response.isSuccessful) {
                 val trackResponse = response.body()
-                return trackResponse?.results?.let { trackDtos ->
+                val tracks =trackResponse?.results?.let { trackDtos ->
                     TrackMapper.mapDtoListToDomain(trackDtos)
                 } ?: emptyList()
+                emit(tracks)
             } else {
-                return emptyList()
+                emit(emptyList())
             }
-        } catch (e: CancellationException) {
-            throw e
         } catch (e: Exception) {
-           return emptyList()
+            emit(emptyList())
         }
     }
 }
