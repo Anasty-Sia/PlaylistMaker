@@ -2,6 +2,11 @@ package com.example.playlistmaker.di
 
 import android.media.MediaPlayer
 import com.example.playlistmaker.data.network.iTunesSearchAPI
+import com.example.playlistmaker.library.data.db.AppDatabase
+import com.example.playlistmaker.library.data.repository.impl.FavoriteTracksRepositoryImpl
+import com.example.playlistmaker.library.domain.interactor.FavoriteTracksInteractor
+import com.example.playlistmaker.library.domain.interactor.impl.FavoriteTracksInteractorImpl
+import com.example.playlistmaker.library.domain.repository.FavoriteTracksRepository
 import com.example.playlistmaker.library.ui.view_model.FavoriteTracksViewModel
 import com.example.playlistmaker.library.ui.view_model.PlaylistsViewModel
 import com.example.playlistmaker.player.data.repository.impl.PlayerRepositoryImpl
@@ -66,11 +71,13 @@ val dataModule = module {
         PlayerRepositoryImpl(mediaPlayer = get()) }
 
     single<TrackRepository> {
-        TrackRepositoryImpl(get(),gson = get())
+        TrackRepositoryImpl(get(),gson = get(),
+            favoriteTracksRepository = get())
     }
 
     single<SearchHistoryRepository> {
-        SearchHistoryRepositoryImpl(context = get(),gson = get())
+        SearchHistoryRepositoryImpl(context = get(),gson = get(),
+            favoriteTracksRepository = get())
     }
 
     single<SettingsRepository> {
@@ -86,6 +93,16 @@ val dataModule = module {
     }
 
     single { TrackMapper }
+
+    single<AppDatabase> {
+        AppDatabase.getInstance(get())
+    }
+
+    single<FavoriteTracksRepository> {
+        FavoriteTracksRepositoryImpl(database = get())
+    }
+
+
 }
 
 val domainModule = module {
@@ -113,10 +130,18 @@ val domainModule = module {
             resourcesProvider = get()
         )
     }
+
+    factory<FavoriteTracksInteractor> {
+        FavoriteTracksInteractorImpl(get())
+    }
+
 }
 
 val viewModelModule = module {
-    viewModel { PlayerViewModel(get()) }
+    viewModel { PlayerViewModel(
+        get(),
+        favoriteTracksInteractor = get()
+    ) }
 
     viewModel {
         SearchViewModel(
@@ -132,8 +157,10 @@ val viewModelModule = module {
         )
     }
 
-    viewModel { FavoriteTracksViewModel() }
+    viewModel { FavoriteTracksViewModel(favoriteTracksInteractor = get()) }
     viewModel { PlaylistsViewModel() }
+
+
 }
 
 

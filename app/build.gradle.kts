@@ -1,10 +1,14 @@
 @file:Suppress("DEPRECATION")
 
+import org.gradle.kotlin.dsl.implementation
+
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("kotlin-parcelize")
     id("androidx.navigation.safeargs.kotlin")
+    id("kotlin-kapt")
 
 }
 
@@ -76,7 +80,9 @@ dependencies {
     implementation (libs.androidx.navigation.ui.ktx.v253)
     implementation (libs.androidx.fragment.ktx.v156)
     implementation(libs.google.material.v180)
-
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
 
 
 

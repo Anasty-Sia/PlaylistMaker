@@ -15,7 +15,11 @@
         android:id="@+id/libraryFragment"
         android:name="com.example.playlistmaker.library.ui.activity.LibraryFragment"
         android:label="fragment_library"
-        tools:layout="@layout/fragment_library" />
+        tools:layout="@layout/fragment_library" >
+    <action
+        android:id="@+id/action_libraryFragment_to_playerFragment"
+        app:destination="@id/playerFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/searchFragment"
@@ -39,6 +43,23 @@
             android:name="track"
             app:argType="com.example.playlistmaker.search.domain.model.Track" />
 
+        <action
+            android:id="@+id/action_playerFragment_to_favoriteTracksFragment"
+            app:destination="@id/favoriteTracksFragment" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/favoriteTracksFragment"
+        android:name="com.example.playlistmaker.library.ui.fragments.FavoriteTracksFragment"
+        android:label="FavoriteTracksFragment"
+        tools:layout="@layout/fragment_favorite_tracks">
+
+
+        <action
+            android:id="@+id/action_favoriteTracksFragment_to_playerFragment"
+            app:destination="@id/playerFragment"/>
+
     </fragment>
 
     <action
@@ -58,5 +79,6 @@
         app:destination="@id/settingsFragment"
         app:popUpTo="@id/settingsFragment"
         app:popUpToInclusive="true" />
+
 
 </navigation>

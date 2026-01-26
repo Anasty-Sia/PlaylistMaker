@@ -23,6 +23,7 @@ navigationUiKtxVersion = "2.9.6"
 retrofit = "3.0.0"
 glide = "5.0.5"
 recyclerview = "1.4.0"
+roomRuntime = "2.8.4"
 viewpager2 = "1.1.0"
 navigationFragmentKtx = "2.9.6"
 navigationUiKtx = "2.9.6"
@@ -37,6 +38,9 @@ androidx-fragment-ktx-v156 = { module = "androidx.fragment:fragment-ktx", versio
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-navigation-fragment-ktx-v253 = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtxVersion" }
 androidx-navigation-ui-ktx-v253 = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtxVersion" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
 google-material-v180 = { module = "com.google.android.material:material", version.ref = "googleMaterial" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

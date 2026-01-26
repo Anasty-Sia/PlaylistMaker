@@ -2,6 +2,7 @@ package com.example.playlistmaker.search.data.repository.impl
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.example.playlistmaker.library.domain.repository.FavoriteTracksRepository
 import com.example.playlistmaker.search.domain.model.Track
 import com.example.playlistmaker.search.domain.repository.SearchHistoryRepository
 import com.google.gson.Gson
@@ -13,7 +14,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 
 class SearchHistoryRepositoryImpl(private val context: Context,
-                                  private val gson: Gson ) : SearchHistoryRepository {
+                                  private val gson: Gson,
+                                  private val favoriteTracksRepository: FavoriteTracksRepository
+) : SearchHistoryRepository {
 
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("SearchHistory", Context.MODE_PRIVATE)
@@ -22,7 +25,14 @@ class SearchHistoryRepositoryImpl(private val context: Context,
 
     override suspend fun loadHistory() = withContext(Dispatchers.IO) {
         val history = getHistoryFromStorage()
-        _historyFlow.update { history }
+        val favoriteTrackIds = favoriteTracksRepository.getFavoriteTrackIds()
+
+        val historyWithFavorites = history.map { track ->
+            track.copy(isFavorite = track.trackId in favoriteTrackIds)
+        }
+
+        _historyFlow.update { historyWithFavorites }
+
     }
 
     override suspend fun addTrackToHistory(track: Track) = withContext(Dispatchers.IO) {
@@ -63,6 +73,8 @@ class SearchHistoryRepositoryImpl(private val context: Context,
         val json = gson.toJson(history)
         sharedPreferences.edit().putString(key, json).apply()
     }
+
+
 
 
     companion object {

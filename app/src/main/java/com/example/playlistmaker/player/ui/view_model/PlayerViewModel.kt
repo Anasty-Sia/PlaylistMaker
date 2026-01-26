@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.playlistmaker.library.domain.interactor.FavoriteTracksInteractor
 import com.example.playlistmaker.player.domain.interactor.PlayerInteractor
 import com.example.playlistmaker.player.domain.model.PlaybackState
 import com.example.playlistmaker.search.domain.model.Track
@@ -15,12 +16,15 @@ import kotlinx.coroutines.launch
 data class PlayerState(
     val playbackState: PlaybackState = PlaybackState.PREPARED,
     val isFavorite: Boolean = false,
-    val currentPosition: Int = 0
+    val currentPosition: Int = 0,
+
 )
 
 class PlayerViewModel(
 
-    private val playerInteractor: PlayerInteractor) : ViewModel() {
+    private val playerInteractor: PlayerInteractor,
+    private val favoriteTracksInteractor: FavoriteTracksInteractor
+) : ViewModel() {
 
     private val _playerState  = MutableLiveData<PlayerState>()
     val playerState: LiveData<PlayerState> = _playerState
@@ -34,9 +38,24 @@ class PlayerViewModel(
 
     fun preparePlayer(track: Track) {
         currentTrack = track
-        _playerState.value = PlayerState(playbackState = PlaybackState.PREPARED)
-        playerInteractor.preparePlayer(track)
+        viewModelScope.launch {
+            try {
+                val isFavorite = favoriteTracksInteractor.isTrackFavorite(track.trackId)
+                _playerState.value = PlayerState(
+                    playbackState = PlaybackState.PREPARED,
+                    isFavorite = isFavorite,
+                    currentPosition = 0
+                )
+                playerInteractor.preparePlayer(track)
+            } catch (e: Exception) {
+                _playerState.value = PlayerState(
+                    playbackState = PlaybackState.ERROR("Ошибка загрузки состояния"),
+                    isFavorite = false,
+                )
+            }
+        }
     }
+
 
     fun playPause() {
         when (_playerState.value?.playbackState) {
@@ -67,9 +86,19 @@ class PlayerViewModel(
     }
 
     fun toggleFavorite() {
-        _playerState.value = _playerState.value?.copy(
-            isFavorite = !(_playerState.value?.isFavorite ?: false)
-        )
+        viewModelScope.launch {
+                val currentState = _playerState.value ?: return@launch
+                val track = currentTrack
+
+                if (currentState.isFavorite) {
+                    favoriteTracksInteractor.removeTrackFromFavorites(track)
+                } else {
+                    favoriteTracksInteractor.addTrackToFavorites(track)
+                }
+                _playerState.value = _playerState.value?.copy(
+                    isFavorite = !(_playerState.value?.isFavorite ?: false),
+                )
+        }
     }
 
     private fun startProgressUpdates() {
@@ -97,6 +126,8 @@ class PlayerViewModel(
             }
         }
     }
+
+
 
     override fun onCleared() {
         super.onCleared()
