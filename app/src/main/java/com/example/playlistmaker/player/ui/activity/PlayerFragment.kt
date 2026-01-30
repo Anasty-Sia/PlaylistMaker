@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -65,6 +66,9 @@ class PlayerFragment : Fragment() {
         binding.tvTrackNamePlayer.text = track.trackName
         binding.tvArtistNamePlayer.text = track.artistName
         binding.tvDurationValue.text = track.getFormattedTime()
+        binding.ivAddToFavorites.setOnClickListener {
+            viewModel.toggleFavorite()
+        }
 
         val cornerRadiusInPx = (8 * resources.displayMetrics.density).toInt()
         val artworkUrl = track.getHighResArtworkUrl() ?: track.artworkUrl100
@@ -129,6 +133,7 @@ class PlayerFragment : Fragment() {
                 }
                 is PlaybackState.ERROR -> {
                     binding.tvTrackTimePlayer.text = DEFAULT_TRACK_TIME
+                    Toast.makeText(requireContext(), state.playbackState.message, Toast.LENGTH_SHORT).show()
                 }
                 else -> {}
             }
@@ -141,6 +146,7 @@ class PlayerFragment : Fragment() {
         } else {
             binding.ivPlayButton.setImageResource(R.drawable.ic_play_arrow)
         }
+
     }
 
     private fun updateFavoriteButton(isFavorite: Boolean) {
@@ -176,12 +182,6 @@ class PlayerFragment : Fragment() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        // Гарантируем, что панель скрыта при каждом показе фрагмента
-        (activity as? RootActivity)?.hideBottomNavigationView()
-    }
-
 
     override fun onPause() {
         super.onPause()
@@ -192,11 +192,6 @@ class PlayerFragment : Fragment() {
         super.onDestroyView()
         (activity as? RootActivity)?.showBottomNavigationView()
         _binding = null
-    }
-
-    override fun onStop() {
-        super.onStop()
-        (activity as? RootActivity)?.showBottomNavigationView()
     }
 
     private companion object {
