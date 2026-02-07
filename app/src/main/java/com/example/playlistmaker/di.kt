@@ -4,9 +4,13 @@ import android.media.MediaPlayer
 import com.example.playlistmaker.data.network.iTunesSearchAPI
 import com.example.playlistmaker.library.data.db.AppDatabase
 import com.example.playlistmaker.library.data.repository.impl.FavoriteTracksRepositoryImpl
+import com.example.playlistmaker.library.data.repository.impl.PlaylistsRepositoryImpl
 import com.example.playlistmaker.library.domain.interactor.FavoriteTracksInteractor
+import com.example.playlistmaker.library.domain.interactor.PlaylistsInteractor
 import com.example.playlistmaker.library.domain.interactor.impl.FavoriteTracksInteractorImpl
+import com.example.playlistmaker.library.domain.interactor.impl.PlaylistsInteractorImpl
 import com.example.playlistmaker.library.domain.repository.FavoriteTracksRepository
+import com.example.playlistmaker.library.domain.repository.PlaylistsRepository
 import com.example.playlistmaker.library.ui.view_model.FavoriteTracksViewModel
 import com.example.playlistmaker.library.ui.view_model.PlaylistsViewModel
 import com.example.playlistmaker.player.data.repository.impl.PlayerRepositoryImpl
@@ -61,8 +65,6 @@ val networkModule = module {
 
 val dataModule = module {
 
-   // single<MediaPlayer> { MediaPlayer() }
-
     factory<MediaPlayer> {
         MediaPlayer()
     }
@@ -102,6 +104,10 @@ val dataModule = module {
         FavoriteTracksRepositoryImpl(database = get())
     }
 
+    single<PlaylistsRepository> {
+        PlaylistsRepositoryImpl(database = get())
+    }
+
 
 }
 
@@ -135,12 +141,17 @@ val domainModule = module {
         FavoriteTracksInteractorImpl(get())
     }
 
+    factory<PlaylistsInteractor> {
+        PlaylistsInteractorImpl(get())
+    }
+
 }
 
 val viewModelModule = module {
     viewModel { PlayerViewModel(
         get(),
-        favoriteTracksInteractor = get()
+        favoriteTracksInteractor = get(),
+        playlistsInteractor = get()
     ) }
 
     viewModel {
@@ -158,8 +169,7 @@ val viewModelModule = module {
     }
 
     viewModel { FavoriteTracksViewModel(favoriteTracksInteractor = get()) }
-    viewModel { PlaylistsViewModel() }
-
+    viewModel { PlaylistsViewModel(playlistsInteractor = get()) }
 
 }
 

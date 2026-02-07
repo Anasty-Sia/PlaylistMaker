@@ -12,6 +12,9 @@ interface FavoriteTracksDao {
     @Insert
     suspend fun insertTrack(track: FavoriteTrackEntity)
 
+    @Query("DELETE FROM favorite_tracks WHERE track_id = :trackId")
+    suspend fun deleteTrackById(trackId: Int)
+
     @Delete
     suspend fun deleteTrack(track: FavoriteTrackEntity)
 
@@ -24,7 +27,6 @@ interface FavoriteTracksDao {
     @Query("SELECT COUNT(*) FROM favorite_tracks WHERE track_id = :trackId")
     suspend fun isTrackFavorite(trackId: Int): Boolean
 
-    // Добавьте метод для проверки существования трека по trackId
     @Query("SELECT * FROM favorite_tracks WHERE track_id = :trackId")
     suspend fun getTrackById(trackId: Int): FavoriteTrackEntity?
 }

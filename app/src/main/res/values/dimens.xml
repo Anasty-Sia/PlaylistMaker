@@ -21,8 +21,7 @@
     <dimen name="subtitle_text_size">24sp</dimen>
     <dimen name="label_text_size">18sp</dimen>
     <dimen name="value_text_size">18sp</dimen>
-
-
+    <dimen name="toast_height">48sp</dimen>
 
 
 </resources>

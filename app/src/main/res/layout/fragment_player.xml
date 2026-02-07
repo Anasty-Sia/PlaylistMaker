@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,6 +9,12 @@
     android:theme="@style/Base.Theme.PlaylistMaker"
     android:orientation="vertical"
     tools:context=".player.ui.activity.PlayerFragment">
+
+    <LinearLayout
+        android:id="@+id/main_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/back_player"
@@ -228,6 +235,87 @@
                 app:layout_constraintTop_toBottomOf="@id/tvGenre"
                 app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"/>
 
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
 </LinearLayout>
+
+    <View
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000"
+        android:alpha="0"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"/>
+
+    <LinearLayout
+        android:id="@+id/bottom_sheet_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:background="@drawable/bottom_sheet_background"
+        android:visibility="gone"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="0dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        android:elevation="8dp">
+
+        <TextView
+            android:id="@+id/tv_bottom_sheet_title"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="Добавить в плейлист"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorPrimary"
+            android:gravity="center"
+            android:paddingVertical="16dp"/>
+
+        <Button
+            android:id="@+id/createPlaylistButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp"
+            style="@style/ButtonPlaylist"
+            android:background="@drawable/button_retry_background"
+            android:text="@string/new_playlist"
+            app:backgroundTint="?attr/colorPrimary"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_playlists"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="24dp"/>
+
+        <LinearLayout
+            android:id="@+id/empty_state"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="40dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/ic_placeholder_45"
+                android:contentDescription="пустой плейлист"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="У вас ещё нет плейлистов"
+                android:textSize="16sp"
+                android:textColor="?attr/colorPrimary"
+                android:gravity="center"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
