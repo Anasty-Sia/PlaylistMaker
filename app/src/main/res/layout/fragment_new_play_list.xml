@@ -115,7 +115,6 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:textSize="16dp"
-            android:inputType="text|textCapSentences"
             android:fontFamily="font/ys_display_medium"
             android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="32dp"

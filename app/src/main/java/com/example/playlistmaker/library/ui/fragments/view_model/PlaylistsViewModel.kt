@@ -7,6 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.library.domain.interactor.PlaylistsInteractor
 import com.example.playlistmaker.library.domain.model.Playlist
 import com.example.playlistmaker.search.domain.model.Track
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class PlaylistsViewModel( private val playlistsInteractor: PlaylistsInteractor
@@ -15,13 +18,22 @@ class PlaylistsViewModel( private val playlistsInteractor: PlaylistsInteractor
         private val _playlistsState = MutableLiveData<PlaylistsState>()
         val playlistsState: LiveData<PlaylistsState> = _playlistsState
 
+         private var loadPlaylistsJob: Job? = null
+
+         private val _playlistsFlow = MutableStateFlow<List<Playlist>>(emptyList())
+         val playlists: StateFlow<List<Playlist>> = _playlistsFlow
+
         init {
             loadPlaylists()
         }
 
         fun loadPlaylists() {
-            viewModelScope.launch {
-                playlistsInteractor.getAllPlaylists().collect { playlists ->
+            loadPlaylistsJob?.cancel()
+
+            loadPlaylistsJob = viewModelScope.launch {
+                playlistsInteractor.getAllPlaylists()
+                    .collect { playlists ->
+                    _playlistsFlow.value = playlists
                     if (playlists.isEmpty()) {
                         _playlistsState.postValue(PlaylistsState.Empty)
                     } else {
@@ -33,18 +45,27 @@ class PlaylistsViewModel( private val playlistsInteractor: PlaylistsInteractor
 
         suspend fun createPlaylist(playlist: Playlist): Long {
             val playlistId = playlistsInteractor.createPlaylist(playlist)
-            loadPlaylists() // Перезагружаем список после создания
+            loadPlaylists()
             return playlistId
         }
 
+
         suspend fun addTrackToPlaylist(playlistId: Long, track: Track) {
             playlistsInteractor.addTrackToPlaylist(playlistId, track)
+            loadPlaylists()
         }
 
 
         fun refresh() {
             loadPlaylists()
         }
+
+        override fun onCleared() {
+            super.onCleared()
+            loadPlaylistsJob?.cancel()
+        }
+
+
     }
 
     sealed class PlaylistsState {

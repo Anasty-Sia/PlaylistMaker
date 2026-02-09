@@ -16,6 +16,7 @@
         android:id="@+id/toast_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/ys_display_regular"
         style="@style/toast_text"
         android:textSize="14sp"
         android:maxLines="1"

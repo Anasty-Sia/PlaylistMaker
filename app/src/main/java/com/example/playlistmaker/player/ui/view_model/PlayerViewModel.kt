@@ -82,6 +82,7 @@ class PlayerViewModel(
 
             playlistsInteractor.addTrackToPlaylist(playlistId, track)
 
+
             loadPlaylists()
 
             _playerState.value = _playerState.value?.copy(

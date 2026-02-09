@@ -22,6 +22,8 @@
     <dimen name="label_text_size">18sp</dimen>
     <dimen name="value_text_size">18sp</dimen>
     <dimen name="toast_height">48sp</dimen>
+    <dimen name="toast_margin_horizontal">8dp</dimen>
+    <dimen name="toast_margin_bottom">30dp</dimen>
 
 
 </resources>

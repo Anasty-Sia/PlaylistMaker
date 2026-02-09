@@ -30,16 +30,23 @@
             android:layout_height="wrap_content"
             android:text="Playlist Name"
             android:textSize="16sp"
+            android:fontFamily="@font/ys_display_regular"
             android:textColor="?attr/colorPrimary"
+            android:drawablePadding="4dp"
             android:maxLines="1"
-            android:ellipsize="end"/>
+            android:ellipsize="end"
+            app:layout_constraintStart_toStartOf="@id/ivCover"
+            app:layout_constraintTop_toBottomOf="@id/tvName"
+            android:gravity="start"/>
 
         <TextView
             android:id="@+id/tvTrackCount"
             style="@style/tvTrackCount_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/ys_display_regular"
             android:text="0 треков"
+            android:gravity="start"
             android:textSize="11sp"
             android:layout_marginTop="2dp"/>
 

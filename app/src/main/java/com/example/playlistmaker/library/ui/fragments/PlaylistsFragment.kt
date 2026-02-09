@@ -4,13 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistsBinding
-import com.example.playlistmaker.library.domain.model.Playlist
 import com.example.playlistmaker.library.ui.adapters.PlaylistsAdapter
 import com.example.playlistmaker.library.ui.view_model.PlaylistsState
 import com.example.playlistmaker.library.ui.view_model.PlaylistsViewModel
@@ -88,10 +86,8 @@ class PlaylistsFragment : Fragment() {
 
             setOnClickListener {
                 try {
-                    // Пытаемся использовать action
                     findNavController().navigate(R.id.action_libraryFragment_to_newPlaylistFragment)
                 } catch (e: Exception) {
-                    // Если action не найден, используем прямой переход
                     findNavController().navigate(R.id.newPlaylistFragment)
                 }
             }

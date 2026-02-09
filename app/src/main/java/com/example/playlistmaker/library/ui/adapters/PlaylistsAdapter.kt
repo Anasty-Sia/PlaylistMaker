@@ -1,4 +1,3 @@
-// PlaylistsAdapter.kt
 package com.example.playlistmaker.library.ui.adapters
 
 import android.view.LayoutInflater

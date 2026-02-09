@@ -31,6 +31,7 @@ import com.example.playlistmaker.player.ui.view_model.PlayerViewModel
 import com.example.playlistmaker.root.RootActivity
 import com.example.playlistmaker.search.domain.model.Track
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -308,6 +309,8 @@ class PlayerFragment : Fragment() {
         }
         lastOpenTime = now
 
+        isBottomSheetAnimating = false
+
         if (isBottomSheetAnimating) {
             return
         }
@@ -359,6 +362,7 @@ class PlayerFragment : Fragment() {
                     if (_binding != null && isAdded && view != null) {
                         binding.bottomSheetContainer.visibility = View.GONE
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                        isBottomSheetAnimating = false
                     }
                     isBottomSheetAnimating = false
                 }
@@ -383,13 +387,29 @@ class PlayerFragment : Fragment() {
         if (!isAdded || view == null) return
 
         lifecycleScope.launch {
+            try {
                 viewModel.addTrackToPlaylist(playlist.playlistId, track)
-                Handler(Looper.getMainLooper()).postDelayed({
-                    if (isAdded && view != null) {
-                        hidePlaylistBottomSheet()
+                delay(1000)
+
+                val currentState = viewModel.playerState.value
+                currentState?.addToPlaylistStatus?.let { status ->
+                    when (status) {
+                        is AddToPlaylistStatus.Success -> {
+                            if (isAdded && view != null) {
+                                hidePlaylistBottomSheet()
+                            }
+                        }
+                        is AddToPlaylistStatus.AlreadyInPlaylist -> {
+                        }
+                        is AddToPlaylistStatus.Error -> {
+                        }
                     }
-                }, 1000)
+                }
+            } catch (e: Exception) {
+                Log.e("PlayerFragment", "Error adding track to playlist", e)
+            }
         }
+
     }
     private fun navigateToNewPlaylist() {
         if (!isAdded || view == null) return
@@ -399,34 +419,23 @@ class PlayerFragment : Fragment() {
         Handler(Looper.getMainLooper()).postDelayed({
             if (!isAdded) return@postDelayed
 
-            currentTrack?.let { track ->
-                val bundle = Bundle().apply {
-                    putParcelable("track_to_add", track)
+
+            try {
+                val bundle = if (currentTrack != null) {
+                    Bundle().apply {
+                    putParcelable("track_to_add", currentTrack)
                 }
-                try {
-                    findNavController().navigate(
-                        R.id.action_playerFragment_to_newPlaylistFragment, // Этот action может не существовать
-                        bundle
-                    )
-                } catch (e: Exception) {
-                    Log.e("BottomSheet", "Navigation error", e)
-                    try {
-                        findNavController().navigate(R.id.newPlaylistFragment, bundle)
-                    } catch (e2: Exception) {
-                        Log.e("BottomSheet", "Fallback navigation error", e2)
-                    }
-                }
-            } ?: run {
-                try {
+            }  else{
+                null
+            }
+
+                if (bundle != null) {
+                    findNavController().navigate(R.id.action_playerFragment_to_newPlaylistFragment, bundle)
+                } else {
                     findNavController().navigate(R.id.action_playerFragment_to_newPlaylistFragment)
-                } catch (e: Exception) {
-                    Log.e("BottomSheet", "Navigation error", e)
-                    try {
-                        findNavController().navigate(R.id.newPlaylistFragment)
-                    } catch (e2: Exception) {
-                        Log.e("BottomSheet", "Fallback navigation error", e2)
-                    }
                 }
+            } catch (e: Exception) {
+                Log.e("PlayerFragment", "Navigation error to new playlist", e)
             }
         }, 300)
     }
@@ -488,6 +497,12 @@ class PlayerFragment : Fragment() {
             bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
             hidePlaylistBottomSheet()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isBottomSheetAnimating = false
+        viewModel.loadPlaylists()
     }
 
     override fun onDestroyView() {

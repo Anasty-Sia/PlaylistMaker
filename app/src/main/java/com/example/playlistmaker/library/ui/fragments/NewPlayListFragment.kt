@@ -10,13 +10,11 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
-import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
@@ -52,6 +50,9 @@ class NewPlaylistFragment : Fragment() {
     private var selectedImageUri: Uri? = null
     private var savedCoverImagePath: String? = null
     private var trackToAdd: Track? = null
+
+    private var isCreating = false
+    private lateinit var backPressedCallback: OnBackPressedCallback
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -90,7 +91,12 @@ class NewPlaylistFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            trackToAdd = it.getParcelable("track_to_add")
+            trackToAdd = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                it.getParcelable("track_to_add", Track::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                it.getParcelable("track_to_add")
+            }
         }
     }
 
@@ -106,10 +112,18 @@ class NewPlaylistFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        savedInstanceState?.getParcelable<Uri>("SELECTED_IMAGE_URI")?.let { uri ->
-            selectedImageUri = uri
-            binding.ivAddPhotoIcon.visibility = View.GONE
-            binding.ivCover.visibility = View.VISIBLE
+        savedInstanceState?.let { bundle ->
+            selectedImageUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                bundle.getParcelable("SELECTED_IMAGE_URI", Uri::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                bundle.getParcelable("SELECTED_IMAGE_URI")
+            }
+        }
+
+            selectedImageUri?.let { uri ->
+                binding.ivAddPhotoIcon.visibility = View.GONE
+                binding.ivCover.visibility = View.VISIBLE
 
             Glide.with(requireContext())
                 .load(uri)
@@ -124,15 +138,39 @@ class NewPlaylistFragment : Fragment() {
         updateCreateButtonState()
 
         hideBottomNavigation()
+        setupSystemBackNavigation()
     }
 
     private fun setupToolbar() {
         binding.toolbar.setNavigationOnClickListener {
-            checkForUnsavedChanges {
-                findNavController().navigateUp()
-            }
+            handleBackNavigation()
         }
     }
+
+
+    private fun handleBackNavigation() {
+        if (checkForChanges()) {
+            showUnsavedChangesDialog {
+                resetCoverState()
+                findNavController().navigateUp()
+            }
+        } else {
+            resetCoverState()
+            findNavController().navigateUp()
+        }
+    }
+
+
+    private fun setupSystemBackNavigation() {
+        backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                handleBackNavigation()
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
+    }
+
 
     private fun setupEdgeToEdgeInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
@@ -160,7 +198,9 @@ class NewPlaylistFragment : Fragment() {
         }
 
         binding.btnCreate.setOnClickListener {
-            createPlaylist()
+            if (!isCreating) {
+                createPlaylist()
+            }
         }
     }
 
@@ -183,7 +223,7 @@ class NewPlaylistFragment : Fragment() {
 
     private fun updateCreateButtonState() {
         val name = binding.tilName.text.toString().trim()
-        val isEnabled = name.isNotEmpty()
+        val isEnabled = name.isNotEmpty()&& !isCreating
 
         binding.btnCreate.isEnabled = isEnabled
 
@@ -244,95 +284,43 @@ class NewPlaylistFragment : Fragment() {
         binding.ivCover.setImageDrawable(null)
     }
 
-    private fun checkForUnsavedChanges(onConfirm: () -> Unit) {
-        if (checkForChanges()) {
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.unsaved_changes_title)
-                .setMessage(R.string.unsaved_changes_message)
-                .setPositiveButton(R.string.discard) { dialog, _ ->
-                    resetCoverState()
-                    dialog.dismiss()
-                    onConfirm()
-                }
-                .setNegativeButton(R.string.cancel) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .show()
-        } else {
-            onConfirm()
-        }
+
+    private fun showUnsavedChangesDialog(onConfirm: () -> Unit) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.unsaved_changes_title))
+            .setMessage(getString(R.string.unsaved_changes_message))
+            .setPositiveButton(getString(R.string.discard)) { dialog, _ ->
+                dialog.dismiss()
+                onConfirm()
+            }
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
-    private fun saveImageToInternalStorage(uri: Uri): String? {
+    private suspend fun saveImageToInternalStorage(uri: Uri): String? {
         return try {
-            val inputStream: InputStream? = requireContext().contentResolver.openInputStream(uri)
-            val fileName = "playlist_cover_${System.currentTimeMillis()}.jpg"
-            val file = File(requireContext().filesDir, fileName)
+            withContext(Dispatchers.IO) {
+                val inputStream: InputStream? =
+                    requireContext().contentResolver.openInputStream(uri)
+                val fileName = "playlist_cover_${System.currentTimeMillis()}.jpg"
+                val file = File(requireContext().filesDir, fileName)
 
-            inputStream?.use { input ->
-                FileOutputStream(file).use { output ->
-                    input.copyTo(output)
+                inputStream?.use { input ->
+                    FileOutputStream(file).use { output ->
+                        input.copyTo(output)
+                    }
                 }
+                file.absolutePath
             }
-
-            file.absolutePath
         } catch (e: Exception) {
-            e.printStackTrace()
             null
         }
     }
 
-    private fun showSuccessToast(message: String) {
-        if (!isAdded || activity == null) return
-
-        val activity = requireActivity()
-
-        val toastView = layoutInflater.inflate(R.layout.custom_toast, null)
-        val textView = toastView.findViewById<TextView>(R.id.toast_text)
-        textView.text = message
-
-        val rootView = activity.window.decorView.findViewById<ViewGroup>(android.R.id.content)
-
-        fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
-
-        val params = FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            dpToPx(48)
-        )
-
-        params.setMargins(dpToPx(7), 0, dpToPx(8), dpToPx(16))
-        params.gravity = Gravity.BOTTOM
-
-        rootView.addView(toastView, params)
-
-        lifecycleScope.launch {
-            delay(2000)
-            withContext(Dispatchers.Main) {
-                if (isAdded && activity != null && toastView.parent != null) {
-                    toastView.animate()
-                        .alpha(0f)
-                        .setDuration(300)
-                        .withEndAction {
-                            rootView.removeView(toastView)
-                        }
-                        .start()
-                }
-            }
-        }
-
-        toastView.setOnClickListener {
-            if (isAdded && activity != null && toastView.parent != null) {
-                toastView.animate()
-                    .alpha(0f)
-                    .setDuration(300)
-                    .withEndAction {
-                        rootView.removeView(toastView)
-                    }
-                    .start()
-            }
-        }
-    }
     private fun createPlaylist() {
+        if (isCreating) return
         val name = binding.tilName.text.toString().trim()
         val description = binding.tilDescription.text.toString().trim().takeIf { it.isNotEmpty() }
 
@@ -341,9 +329,14 @@ class NewPlaylistFragment : Fragment() {
             return
         }
 
+        isCreating = true
+        updateCreateButtonState()
+        binding.btnCreate.isEnabled = false
+
         lifecycleScope.launch {
             try {
                 savedCoverImagePath = selectedImageUri?.let { saveImageToInternalStorage(it) }
+
 
                 val playlist = Playlist(
                     name = name,
@@ -356,65 +349,42 @@ class NewPlaylistFragment : Fragment() {
                 val playlistId = viewModel.createPlaylist(playlist)
 
                 trackToAdd?.let { track ->
-                    try {
-                        viewModel.addTrackToPlaylist(playlistId, track)
+                    viewModel.addTrackToPlaylist(playlistId, track)
+                }
 
-                        showSuccessToast(
-                            getString(R.string.playlist_created_and_track_added, name)
-                        )
+                val successMessage = getString(R.string.playlist_created, name)
 
-                        delay(2000)
 
-                        withContext(Dispatchers.Main) {
-                            if (isAdded) {
-                                findNavController().navigateUp()
-                            }
-                        }
-                    } catch (e: IllegalStateException) {
-                        showSuccessToast(
-                            getString(R.string.playlist_created, name)
-                        )
-                        delay(2000)
-                        withContext(Dispatchers.Main) {
-                            if (isAdded) {
-                                findNavController().navigateUp()
-                            }
-                        }
-                    } catch (e: Exception) {
-                        showSuccessToast(
-                            getString(R.string.playlist_created, name)
-                        )
-                        delay(2000)
-                        withContext(Dispatchers.Main) {
-                            if (isAdded) {
-                                findNavController().navigateUp()
-                            }
-                        }
-                        e.printStackTrace()
-                    }
-                } ?: run {
-                    showSuccessToast(
-                        getString(R.string.playlist_created, name)
-                    )
-                    delay(2000)
-                    withContext(Dispatchers.Main) {
-                        if (isAdded) {
-                            findNavController().navigateUp()
-                        }
+                withContext(Dispatchers.Main) {
+                    if (isAdded) {
+                        (activity as? RootActivity)?.showGlobalToast(successMessage)
                     }
                 }
 
+
+                delay(500)
+
+                withContext(Dispatchers.Main) {
+                    if (isAdded) {
+                        findNavController().navigateUp()
+                    }
+                    isCreating = false
+                }
             } catch (e: Exception) {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.error_creating_playlist),
-                    Toast.LENGTH_SHORT
-                ).show()
-                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    if (isAdded) {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.error_creating_playlist),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                isCreating = false
+                updateCreateButtonState()
             }
         }
     }
-
 
     private fun hideBottomNavigation() {
         (activity as? RootActivity)?.let { rootActivity ->
@@ -437,18 +407,15 @@ class NewPlaylistFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Скрываем нижнее меню
         hideBottomNavigation()
     }
 
-    override fun onPause() {
-        super.onPause()
-        // Восстанавливаем нижнее меню при выходе из фрагмента
-        showBottomNavigation()
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        showBottomNavigation()
+        trackToAdd = null
         _binding = null
+        isCreating = false
     }
 }
