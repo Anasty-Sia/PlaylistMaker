@@ -77,7 +77,6 @@
 
     <style name="background_style_main">
         <item name="android:background">@color/YP_black</item>
-        <item name="android:backgroundTint">@null</item>
     </style>
 
 
@@ -325,6 +324,27 @@
     </style>
     <style name="background_style_root">
         <item name="android:background">@color/YP_black</item>
+    </style>
+
+    <style name="toast_text">
+        <item name="android:textColor">@color/YP_black</item>
+    </style>
+
+    <!-- Для TextInputLayout -->
+    <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/text_input_box_stroke_night</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxCornerRadiusBottomStart">4dp</item>
+        <item name="boxCornerRadiusBottomEnd">4dp</item>
+        <item name="boxCornerRadiusTopStart">4dp</item>
+        <item name="boxCornerRadiusTopEnd">4dp</item>
+        <item name="hintTextColor">@color/white</item>
+        <item name="android:textColorHint">?attr/colorPrimary</item>
+
+    </style>
+
+    <style name="tvTrackCount_text">
+        <item name="android:textColor">@color/white</item>
     </style>
 
 </resources>

@@ -16,9 +16,9 @@
         android:name="com.example.playlistmaker.library.ui.activity.LibraryFragment"
         android:label="fragment_library"
         tools:layout="@layout/fragment_library" >
-    <action
-        android:id="@+id/action_libraryFragment_to_playerFragment"
-        app:destination="@id/playerFragment" />
+        <action
+            android:id="@+id/action_libraryFragment_to_newPlaylistFragment"
+            app:destination="@id/newPlaylistFragment" />
     </fragment>
 
     <fragment
@@ -46,6 +46,16 @@
         <action
             android:id="@+id/action_playerFragment_to_favoriteTracksFragment"
             app:destination="@id/favoriteTracksFragment" />
+
+        <action
+            android:id="@+id/action_playerFragment_to_newPlaylistFragment"
+            app:destination="@id/newPlaylistFragment" >
+        <argument
+            android:name="track_to_add"
+            app:argType="com.example.playlistmaker.search.domain.model.Track"
+            app:nullable="true"
+            android:defaultValue="@null"/>
+        </action>
     </fragment>
 
 
@@ -60,6 +70,23 @@
             android:id="@+id/action_favoriteTracksFragment_to_playerFragment"
             app:destination="@id/playerFragment"/>
 
+    </fragment>
+
+    <fragment
+        android:id="@+id/newPlaylistFragment"
+        android:name="com.example.playlistmaker.library.ui.fragments.NewPlaylistFragment"
+        android:label="Новый плейлист"
+        tools:layout="@layout/fragment_new_play_list">
+        <action
+            android:id="@+id/action_newPlaylistFragment_to_libraryFragment"
+            app:destination="@id/libraryFragment"
+            app:popUpTo="@id/libraryFragment" />
+
+        <argument
+            android:name="track_to_add"
+            app:argType="com.example.playlistmaker.search.domain.model.Track"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
 
     <action

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,7 +51,6 @@ class FavoriteTracksFragment : Fragment() {
         trackClickFlow
             .debounce(CLICK_DEBOUNCE_DELAY)
             .onEach { track ->
-              //  (activity as? RootActivity)?.animateBottomNavigationView()
                 navigateToPlayer(track)
             }
             .launchIn(viewLifecycleOwner.lifecycleScope)
@@ -97,12 +97,10 @@ class FavoriteTracksFragment : Fragment() {
     }
 
     private fun showTracks(tracks: List<Track>) {
-        binding.emptyStateView.visibility = View.GONE
+        binding.emptyStateView.isVisible = false
         binding.recyclerViewTracks.visibility = View.VISIBLE
         trackAdapter?.updateData(tracks)
     }
-
-
 
     override fun onResume() {
         super.onResume()

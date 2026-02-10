@@ -1,7 +1,14 @@
 package com.example.playlistmaker.root
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -79,6 +86,51 @@ class RootActivity : AppCompatActivity() {
             R.id.settingsFragment -> {
                 binding.bottomNavigationView.menu.findItem(R.id.settingsFragment).isChecked = true
             }
+        }
+    }
+
+    fun showGlobalToast(message: String) {
+        runOnUiThread {
+
+            val rootView = window.decorView.findViewById<ViewGroup>(android.R.id.content)
+            val existingToast = rootView.findViewById<View>(R.id.toast_layout)
+            existingToast?.let {
+                rootView.removeView(it)
+            }
+
+            val toastView = LayoutInflater.from(this).inflate(R.layout.custom_toast, null)
+            toastView.id = R.id.toast_layout
+
+            val textView = toastView.findViewById<TextView>(R.id.toast_text)
+            textView.text = message
+
+            textView.visibility = View.VISIBLE
+
+            val params = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                resources.getDimensionPixelSize(R.dimen.toast_height)
+            ).apply {
+                val marginHorizontal = resources.getDimensionPixelSize(R.dimen.toast_margin_horizontal)
+                val marginBottom = resources.getDimensionPixelSize(R.dimen.toast_margin_bottom)
+                setMargins(marginHorizontal, 0, marginHorizontal, marginBottom)
+                gravity = Gravity.BOTTOM
+            }
+
+            rootView.addView(toastView, params)
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                if (toastView.parent != null) {
+                    toastView.animate()
+                        .alpha(0f)
+                        .setDuration(300)
+                        .withEndAction {
+                            (toastView.parent as? ViewGroup)?.removeView(toastView)
+                        }
+                        .start()
+                }
+            }, 1500)
+
+
         }
     }
 }
