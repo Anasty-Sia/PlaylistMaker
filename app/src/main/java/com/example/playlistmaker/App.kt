@@ -22,6 +22,8 @@ class App: Application() {
         setupAppTheme()
 
     }
+
+
     private fun setupAppTheme() {
         try {
 

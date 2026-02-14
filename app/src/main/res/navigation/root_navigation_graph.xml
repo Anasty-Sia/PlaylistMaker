@@ -89,6 +89,48 @@
             android:defaultValue="@null" />
     </fragment>
 
+    <fragment
+        android:id="@+id/playlistDetailsFragment"
+        android:name="com.example.playlistmaker.library.ui.fragments.PlaylistDetailsFragment"
+        android:label="PlaylistDetailsFragment"
+        tools:layout="@layout/fragment_playlist_details">
+
+        <argument
+            android:name="playlistId"
+            app:argType="long" />
+
+        <action
+            android:id="@+id/action_playlistDetailsFragment_to_playerFragment"
+            app:destination="@id/playerFragment" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/playlistsFragment"
+        android:name="com.example.playlistmaker.library.ui.fragments.PlaylistsFragment"
+        android:label="PlaylistsFragment"
+        tools:layout="@layout/fragment_playlists">
+
+        <action
+            android:id="@+id/action_playlistsFragment_to_playlistDetailsFragment"
+            app:destination="@id/playlistDetailsFragment" />
+
+        <action
+            android:id="@+id/action_playlistsFragment_to_newPlaylistFragment"
+            app:destination="@id/newPlaylistFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/editPlaylistFragment"
+        android:name="com.example.playlistmaker.library.ui.fragments.EditPlaylistFragment"
+        android:label="EditPlaylistFragment">
+        <argument
+            android:name="playlist"
+            app:argType="com.example.playlistmaker.library.domain.model.Playlist"
+            app:nullable="true" />
+    </fragment>
+
     <action
         android:id="@+id/action_global_libraryFragment"
         app:destination="@id/libraryFragment"

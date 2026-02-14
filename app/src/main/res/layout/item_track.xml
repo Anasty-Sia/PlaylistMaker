@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/TrackItem">
+
+    <ImageView
+        android:id="@+id/ivArtwork"
+        style="@style/TrackArtwork"
+        tools:src="@drawable/ic_placeholder_45"/>
+
+    <LinearLayout
+        style="@style/TrackTextContainer">
+
+        <TextView
+            android:id="@+id/tvTrackName"
+            style="@style/TrackName"
+            tools:text="Yesterday (Remastered 2009)" />
+
+        <LinearLayout
+            style="@style/TrackInfoContainer">
+
+            <TextView
+                android:id="@+id/tvArtistName"
+                style="@style/TrackInfo"
+                tools:text="The Beatles"/>
+
+            <ImageView
+                style="@style/TrackInfoSeparator"
+                android:src="@drawable/ic_split_13"/>
+
+            <TextView
+                android:id="@+id/tvTrackTime"
+                style="@style/TrackInfo"
+                tools:text="2:05"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <ImageView
+        style="@style/TrackArrow"
+        android:src="@drawable/ic_arrow_forward_24"/>
+</LinearLayout>

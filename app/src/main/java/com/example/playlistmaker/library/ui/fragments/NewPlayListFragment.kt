@@ -40,18 +40,18 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 
-class NewPlaylistFragment : Fragment() {
+open class NewPlaylistFragment : Fragment() {
 
     private var _binding: FragmentNewPlayListBinding? = null
-    private val binding get() = _binding!!
+    protected  val binding get() = _binding!!
 
-    private val viewModel: PlaylistsViewModel by viewModel()
+    protected open  val viewModel: PlaylistsViewModel by viewModel()
 
-    private var selectedImageUri: Uri? = null
-    private var savedCoverImagePath: String? = null
+    protected  var selectedImageUri: Uri? = null
+    protected  var savedCoverImagePath: String? = null
     private var trackToAdd: Track? = null
 
-    private var isCreating = false
+    protected  var isCreating = false
     private lateinit var backPressedCallback: OnBackPressedCallback
 
     private val pickImageLauncher = registerForActivityResult(
@@ -148,7 +148,7 @@ class NewPlaylistFragment : Fragment() {
     }
 
 
-    private fun handleBackNavigation() {
+    protected open fun handleBackNavigation() {
         if (checkForChanges()) {
             showUnsavedChangesDialog {
                 resetCoverState()
@@ -221,7 +221,7 @@ class NewPlaylistFragment : Fragment() {
         })
     }
 
-    private fun updateCreateButtonState() {
+    protected fun updateCreateButtonState() {
         val name = binding.tilName.text.toString().trim()
         val isEnabled = name.isNotEmpty()&& !isCreating
 
@@ -267,7 +267,7 @@ class NewPlaylistFragment : Fragment() {
         pickImageLauncher.launch(intent)
     }
 
-    private fun checkForChanges(): Boolean {
+    protected fun checkForChanges(): Boolean {
         val hasName = binding.tilName.text.toString().trim().isNotEmpty()
         val hasDescription = binding.tilDescription.text.toString().trim().isNotEmpty()
         val hasImage = selectedImageUri != null
@@ -275,7 +275,7 @@ class NewPlaylistFragment : Fragment() {
         return hasName || hasDescription || hasImage
     }
 
-    private fun resetCoverState() {
+    protected  fun resetCoverState() {
         selectedImageUri = null
         savedCoverImagePath = null
 
@@ -285,7 +285,7 @@ class NewPlaylistFragment : Fragment() {
     }
 
 
-    private fun showUnsavedChangesDialog(onConfirm: () -> Unit) {
+    protected fun showUnsavedChangesDialog(onConfirm: () -> Unit) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.unsaved_changes_title))
             .setMessage(getString(R.string.unsaved_changes_message))
@@ -299,7 +299,7 @@ class NewPlaylistFragment : Fragment() {
             .show()
     }
 
-    private suspend fun saveImageToInternalStorage(uri: Uri): String? {
+    protected  suspend fun saveImageToInternalStorage(uri: Uri): String? {
         return try {
             withContext(Dispatchers.IO) {
                 val inputStream: InputStream? =
@@ -319,7 +319,7 @@ class NewPlaylistFragment : Fragment() {
         }
     }
 
-    private fun createPlaylist() {
+    protected open fun createPlaylist() {
         if (isCreating) return
         val name = binding.tilName.text.toString().trim()
         val description = binding.tilDescription.text.toString().trim().takeIf { it.isNotEmpty() }
@@ -386,11 +386,15 @@ class NewPlaylistFragment : Fragment() {
         }
     }
 
+
+
     private fun hideBottomNavigation() {
         (activity as? RootActivity)?.let { rootActivity ->
             rootActivity.hideBottomNavigationView()
         }
     }
+
+
 
     private fun showBottomNavigation() {
         (activity as? RootActivity)?.let { rootActivity ->

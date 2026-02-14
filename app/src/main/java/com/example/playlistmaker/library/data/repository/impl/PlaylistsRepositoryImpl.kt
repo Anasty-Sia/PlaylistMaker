@@ -7,7 +7,10 @@ import com.example.playlistmaker.library.domain.model.Playlist
 import com.example.playlistmaker.library.domain.repository.PlaylistsRepository
 import com.example.playlistmaker.search.domain.model.Track
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class PlaylistsRepositoryImpl(
     private val database: AppDatabase
@@ -41,6 +44,7 @@ class PlaylistsRepositoryImpl(
             database.playlistTracksDao().insertTrack(playlistTrackEntity)
         }
 
+
         val updatedTrackIds = currentTrackIds + track.trackId
         val updatedEntity = playlistEntity.copy(
             trackIdsJson = PlaylistEntity.createTrackIdsJson(updatedTrackIds),
@@ -52,37 +56,36 @@ class PlaylistsRepositoryImpl(
 
     }
 
-   override suspend fun getPlaylistTracks(playlistId: Long): List<Track> {
+    override suspend fun getPlaylistTracks(playlistId: Long): List<Track> {
         val playlistEntity = database.playlistsDao().getPlaylistById(playlistId)
             ?: return emptyList()
 
         val trackIds = playlistEntity.getTrackIds()
-        val tracks = mutableListOf<Track>()
+        if (trackIds.isEmpty()) return emptyList()
 
-        for (trackId in trackIds) {
-            val trackEntity = database.playlistTracksDao().getTrackById(trackId)
-            trackEntity?.let {
-                val isFavorite = database.favoriteTracksDao().isTrackFavorite(trackId)
-                tracks.add(Track(
-                    trackId = it.trackId,
-                    trackName = it.trackName,
-                    artistName = it.artistName,
-                    trackTimeMillis = it.trackTimeMillis,
-                    artworkUrl100 = it.artworkUrl100,
-                    collectionName = it.collectionName,
-                    releaseDate = it.releaseDate,
-                    primaryGenreName = it.primaryGenreName,
-                    country = it.country,
-                    previewUrl = it.previewUrl,
-                    isFavorite = isFavorite
-                ))
-            }
+        val trackEntities = database.playlistTracksDao().getTracksByIds(trackIds)
+
+        val trackMap = trackEntities.associateBy { it.trackId }
+        val sortedTracks = trackIds.mapNotNull { trackMap[it] }
+
+        val favoriteTrackIds = database.favoriteTracksDao().getAllFavoriteTrackIds()
+
+        return sortedTracks.map { entity ->
+            Track(
+                trackId = entity.trackId,
+                trackName = entity.trackName ?: "",
+                artistName = entity.artistName ?: "",
+                trackTimeMillis = entity.trackTimeMillis ?: 0L,
+                artworkUrl100 = entity.artworkUrl100,
+                collectionName = entity.collectionName,
+                releaseDate = entity.releaseDate,
+                primaryGenreName = entity.primaryGenreName,
+                country = entity.country,
+                previewUrl = entity.previewUrl,
+                isFavorite = favoriteTrackIds.contains(entity.trackId)
+            )
         }
-
-        return tracks
-
     }
-
 
     override suspend fun createPlaylist(playlist: Playlist): Long {
         val entity = PlaylistEntity(
@@ -129,6 +132,87 @@ class PlaylistsRepositoryImpl(
 
         val trackIds = playlistEntity.getTrackIds()
         return trackIds.contains(trackId)
+    }
+
+    override suspend fun deleteTrackFromPlaylist(playlistId: Long, trackId: Int) {
+        val playlistEntity = database.playlistsDao().getPlaylistById(playlistId)
+            ?: throw IllegalArgumentException("Playlist not found")
+
+        val currentTrackIds = playlistEntity.getTrackIds()
+        if (!currentTrackIds.contains(trackId)) {
+            return
+        }
+
+        val updatedTrackIds = currentTrackIds.filter { it != trackId }
+        val updatedEntity = playlistEntity.copy(
+            trackIdsJson = PlaylistEntity.createTrackIdsJson(updatedTrackIds),
+            trackCount = updatedTrackIds.size
+        )
+
+        database.playlistsDao().updatePlaylist(updatedEntity)
+
+        cleanupOrphanedTracks()
+    }
+
+    override suspend fun cleanupOrphanedTracks() {
+        val playlists = database.playlistsDao().getAllPlaylists().firstOrNull() ?: emptyList()
+
+        val allTrackIdsInPlaylists = playlists
+            .flatMap { it.getTrackIds() }
+            .toSet()
+
+        val allStoredTracks = database.playlistTracksDao().getAllTracks()
+
+        allStoredTracks.forEach { trackEntity ->
+            if (!allTrackIdsInPlaylists.contains(trackEntity.trackId)) {
+                database.playlistTracksDao().deleteTrackById(trackEntity.trackId)
+            }
+        }
+    }
+
+
+    override suspend fun sharePlaylist(playlistId: Long): String? {
+        val playlist = getPlaylistById(playlistId) ?: return null
+        val tracks = getPlaylistTracks(playlistId)
+
+        if (tracks.isEmpty()) return null
+
+        return buildString {
+            appendLine(playlist.name)
+            if (!playlist.description.isNullOrEmpty()) {
+                appendLine(playlist.description)
+            }
+            val trackCountText = getTrackCountText(tracks.size)
+            appendLine(trackCountText)
+            appendLine()
+
+            tracks.forEachIndexed { index, track ->
+                val duration = formatTrackTime(track.trackTimeMillis)
+                appendLine("${index + 1}. ${track.artistName} - ${track.trackName} ($duration)")
+            }
+        }
+    }
+
+    override suspend fun deletePlaylistWithTracks(playlistId: Long) {
+        deletePlaylist(playlistId)
+        cleanupOrphanedTracks()
+    }
+
+    private fun formatTrackTime(timeMillis: Long?): String {
+        return try {
+            SimpleDateFormat("mm:ss", Locale.getDefault()).format(timeMillis ?: 0)
+        } catch (e: Exception) {
+            "0:00"
+        }
+    }
+
+
+    private fun getTrackCountText(count: Int): String {
+        return when {
+            count % 10 == 1 && count % 100 != 11 -> "$count трек"
+            count % 10 in 2..4 && count % 100 !in 12..14 -> "$count трека"
+            else -> "$count треков"
+        }
     }
 
     private fun PlaylistEntity.toPlaylist(): Playlist {
