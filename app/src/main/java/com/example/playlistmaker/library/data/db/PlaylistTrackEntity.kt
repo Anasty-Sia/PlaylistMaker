@@ -35,5 +35,10 @@ data class PlaylistTrackEntity(
     val country: String?,
 
     @ColumnInfo(name = "preview_url")
-    val previewUrl: String?
+    val previewUrl: String?,
+
+    @ColumnInfo(name = "added_date")
+    val addedDate: Long = System.currentTimeMillis()
+
+
 )

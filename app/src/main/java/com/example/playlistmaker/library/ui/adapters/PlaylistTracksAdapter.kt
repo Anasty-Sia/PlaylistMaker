@@ -23,7 +23,6 @@ class PlaylistTracksAdapter(
         val track = tracks[position]
         holder.bind(track)
 
-        // Убедимся, что слушатели устанавливаются каждый раз
         holder.itemView.setOnClickListener {
             onTrackClick(track)
         }
@@ -36,10 +35,9 @@ class PlaylistTracksAdapter(
 
     override fun getItemCount(): Int = tracks.size
 
-
-
     fun updateData(newTracks: List<Track>) {
         tracks = newTracks
         notifyDataSetChanged()
     }
 }
+

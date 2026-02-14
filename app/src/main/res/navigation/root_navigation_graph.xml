@@ -126,9 +126,8 @@
         android:name="com.example.playlistmaker.library.ui.fragments.EditPlaylistFragment"
         android:label="EditPlaylistFragment">
         <argument
-            android:name="playlist"
-            app:argType="com.example.playlistmaker.library.domain.model.Playlist"
-            app:nullable="true" />
+            android:name="playlistId"
+            app:argType="long" />
     </fragment>
 
     <action

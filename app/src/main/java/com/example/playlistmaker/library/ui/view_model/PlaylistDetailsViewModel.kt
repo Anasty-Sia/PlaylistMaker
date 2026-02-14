@@ -1,9 +1,14 @@
 package com.example.playlistmaker.library.ui.view_model
 
+import android.content.Context
+import androidx.annotation.MainThread
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.playlistmaker.R
 import com.example.playlistmaker.library.domain.interactor.PlaylistsInteractor
 import com.example.playlistmaker.library.domain.model.Playlist
 import com.example.playlistmaker.search.domain.model.Track
@@ -11,35 +16,56 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
+
+
+data class PlaylistDetailsState(
+    val playlist: Playlist? = null,
+    val tracks: List<Track> = emptyList(),
+    val totalDuration: String = "",
+    val isLoading: Boolean = false
+)
+
+class SingleLiveEvent<T> : MutableLiveData<T>() {
+    private val pending = AtomicBoolean(false)
+
+    @MainThread
+    override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
+        super.observe(owner) { t ->
+            if (pending.compareAndSet(true, false)) {
+                observer.onChanged(t)
+            }
+        }
+    }
+
+    @MainThread
+    override fun setValue(value: T?) {
+        pending.set(true)
+        super.setValue(value)
+    }
+}
 
 class PlaylistDetailsViewModel(
-    private val playlistsInteractor: PlaylistsInteractor
+    private val playlistsInteractor: PlaylistsInteractor, private val applicationContext: Context
 ) : ViewModel() {
 
-    private val _playlist = MutableLiveData<Playlist?>()
-    val playlist: LiveData<Playlist?> = _playlist
+    private val _state = MutableLiveData(PlaylistDetailsState(isLoading = true))
+    val state: LiveData<PlaylistDetailsState> = _state
 
-    private val _playlistTracks = MutableLiveData<List<Track>>()
-    val playlistTracks: LiveData<List<Track>> = _playlistTracks
-
-    private val _totalDuration = MutableLiveData<String>("0 минут")
-    val totalDuration: LiveData<String> = _totalDuration
-
-    private val _isLoading = MutableLiveData(false)
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    private val _shareResult = MutableLiveData<String?>()
+    // Разовые события
+    private val _shareResult = SingleLiveEvent<String?>()
     val shareResult: LiveData<String?> = _shareResult
 
-    private val _playlistDeleted = MutableLiveData(false)
-    val playlistDeleted: LiveData<Boolean> = _playlistDeleted
-
-    private val _showEmptyPlaylistToast = MutableLiveData(false)
+    private val _showEmptyPlaylistToast = SingleLiveEvent<Boolean>()
     val showEmptyPlaylistToast: LiveData<Boolean> = _showEmptyPlaylistToast
+
+    private val _navigateBack = SingleLiveEvent<Boolean>()
+    val navigateBack: LiveData<Boolean> = _navigateBack
 
     private var currentPlaylistId: Long = 0L
     private var loadPlaylistJob: Job? = null
     private var loadTracksJob: Job? = null
+
 
     fun loadPlaylist(playlistId: Long) {
         currentPlaylistId = playlistId
@@ -47,14 +73,11 @@ class PlaylistDetailsViewModel(
         loadPlaylistJob?.cancel()
         loadPlaylistJob = viewModelScope.launch {
             try {
-                _isLoading.value = true
                 val playlist = playlistsInteractor.getPlaylistById(playlistId)
-                _playlist.value = playlist
+                _state.value = _state.value?.copy(playlist = playlist, isLoading = false)
             } catch (e: Exception) {
                 e.printStackTrace()
-                _playlist.value = null
-            } finally {
-                _isLoading.value = false
+                _state.value = _state.value?.copy(playlist = null, isLoading = false)
             }
         }
     }
@@ -63,21 +86,26 @@ class PlaylistDetailsViewModel(
         loadTracksJob?.cancel()
 
         loadTracksJob = viewModelScope.launch {
+            _state.value = _state.value?.copy(isLoading = true)
             try {
-                _isLoading.value = true
                 val tracks = playlistsInteractor.getPlaylistTracks(playlistId)
                 withContext(Dispatchers.Main) {
-                    _playlistTracks.value = tracks
-                    calculateTotalDuration(tracks)
+                    val duration = formatDuration(tracks)
+                    _state.value = _state.value?.copy(
+                        tracks = tracks,
+                        totalDuration = duration,
+                        isLoading = false
+                    )
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
-                    _playlistTracks.value = emptyList()
-                    _totalDuration.value = "0 минут"
+                    _state.value = _state.value?.copy(
+                        tracks = emptyList(),
+                        totalDuration = formatDuration(emptyList()),
+                        isLoading = false
+                    )
                 }
-            } finally {
-                _isLoading.value = false
             }
         }
     }
@@ -90,13 +118,13 @@ class PlaylistDetailsViewModel(
                 val shareText = playlistsInteractor.sharePlaylist(currentPlaylistId)
                 if (shareText == null) {
                     _showEmptyPlaylistToast.value = true
-                    _shareResult.value = null
+
+
                 } else {
                     _shareResult.value = shareText
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _shareResult.value = null
             }
         }
     }
@@ -107,10 +135,9 @@ class PlaylistDetailsViewModel(
         viewModelScope.launch {
             try {
                 playlistsInteractor.deletePlaylistWithTracks(currentPlaylistId)
-                _playlistDeleted.value = true
+                _navigateBack.value = true
             } catch (e: Exception) {
                 e.printStackTrace()
-                _playlistDeleted.value = false
             }
         }
     }
@@ -126,25 +153,13 @@ class PlaylistDetailsViewModel(
         }
     }
 
-    fun resetShowEmptyPlaylistToast() {
-        _showEmptyPlaylistToast.value = false
-    }
-
-    private fun calculateTotalDuration(tracks: List<Track>) {
+    private fun formatDuration(tracks: List<Track>): String {
         val totalMillis = tracks.sumOf { it.trackTimeMillis ?: 0L }
-        _totalDuration.value = formatDuration(totalMillis)
-    }
-
-
-    private fun formatDuration(durationMillis: Long): String {
-        if (durationMillis == 0L) return "0 минут"
-        val minutes = durationMillis / 60000
-        return when {
-            minutes == 0L -> "0 минут"
-            minutes % 10 == 1L && minutes % 100 != 11L -> "$minutes минута"
-            minutes % 10 in 2..4 && minutes % 100 !in 12..14 -> "$minutes минуты"
-            else -> "$minutes минут"
+        if (totalMillis == 0L) {
+            return applicationContext.resources.getQuantityString(R.plurals.minutes_count, 0, 0)
         }
+        val minutes = totalMillis / 60000
+        return applicationContext.resources.getQuantityString(R.plurals.minutes_count, minutes.toInt(), minutes)
     }
 
     override fun onCleared() {

@@ -57,8 +57,6 @@
     <string name="add_photo">Добавить фото</string>
 
 
-
-
     <plurals name="tracks_count">
         <item quantity="one">%d трек</item>
         <item quantity="few">%d трека</item>
@@ -66,7 +64,13 @@
         <item quantity="other">%d треков</item>
     </plurals>
 
-    <!-- Playlist Details -->
+    <plurals name="minutes_count">
+        <item quantity="one">%d минута</item>
+        <item quantity="few">%d минуты</item>
+        <item quantity="many">%d минут</item>
+        <item quantity="other">%d минут</item>
+    </plurals>
+
     <string name="minutes_format">%s минут</string>
     <string name="show_tracks">Показать треки</string>
     <string name="playlist_tracks">Треки в плейлисте</string>
@@ -81,7 +85,6 @@
     <string name="remove_track_message">Удалить \"%s\" из плейлиста?</string>
     <string name="remove">Удалить</string>
 
-    <!-- Plural для кнопки показа треков -->
     <plurals name="show_tracks_button">
         <item quantity="one">Показать 1 трек</item>
         <item quantity="few">Показать %d трека</item>
@@ -89,7 +92,6 @@
         <item quantity="other">Показать %d треков</item>
     </plurals>
 
-    <!-- Добавить в res/values/strings.xml -->
     <string name="delete_track_title">Удалить трек</string>
     <string name="delete_track_message">Хотите удалить трек?</string>
     <string name="yes">ДА</string>
@@ -107,8 +109,12 @@
     <string name="save">Сохранить</string>
     <string name="playlist_updated">Плейлист \"%s\" обновлён</string>
     <string name="error_updating_playlist">Ошибка при обновлении плейлиста</string>
-
-
+    <string name="playlist_name_placeholder">Название плейлиста</string>
+    <string name="tracks_count_placeholder">0 треков</string>
+    <string name="empty_playlist">Пустой плейлист</string>
+    <string name="empty_playlist_share_message">В этом плейлисте нет списка треков, которым можно поделиться</string>
+    <string name="playlist_deleted">Плейлист удалён</string>
+    <string name="saving">Сохранение</string>
 
 </resources>
 

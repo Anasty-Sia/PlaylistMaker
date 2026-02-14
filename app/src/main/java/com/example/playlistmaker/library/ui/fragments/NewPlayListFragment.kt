@@ -147,7 +147,6 @@ open class NewPlaylistFragment : Fragment() {
         }
     }
 
-
     protected open fun handleBackNavigation() {
         if (checkForChanges()) {
             showUnsavedChangesDialog {
@@ -203,6 +202,10 @@ open class NewPlaylistFragment : Fragment() {
             }
         }
     }
+    protected open fun onTextChanged() {
+        updateCreateButtonState()
+    }
+
 
     private fun setupTextWatchers() {
         binding.tilName.addTextChangedListener(object : TextWatcher {
@@ -210,6 +213,7 @@ open class NewPlaylistFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 updateCreateButtonState()
+                onTextChanged()
             }
         })
 
@@ -217,6 +221,7 @@ open class NewPlaylistFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
+                onTextChanged()
             }
         })
     }
@@ -386,15 +391,11 @@ open class NewPlaylistFragment : Fragment() {
         }
     }
 
-
-
     private fun hideBottomNavigation() {
         (activity as? RootActivity)?.let { rootActivity ->
             rootActivity.hideBottomNavigationView()
         }
     }
-
-
 
     private fun showBottomNavigation() {
         (activity as? RootActivity)?.let { rootActivity ->
@@ -413,7 +414,6 @@ open class NewPlaylistFragment : Fragment() {
         super.onResume()
         hideBottomNavigation()
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

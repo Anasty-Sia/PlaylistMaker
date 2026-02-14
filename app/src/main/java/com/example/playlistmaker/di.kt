@@ -9,7 +9,6 @@ import com.example.playlistmaker.library.domain.interactor.FavoriteTracksInterac
 import com.example.playlistmaker.library.domain.interactor.PlaylistsInteractor
 import com.example.playlistmaker.library.domain.interactor.impl.FavoriteTracksInteractorImpl
 import com.example.playlistmaker.library.domain.interactor.impl.PlaylistsInteractorImpl
-import com.example.playlistmaker.library.domain.model.Playlist
 import com.example.playlistmaker.library.domain.repository.FavoriteTracksRepository
 import com.example.playlistmaker.library.domain.repository.PlaylistsRepository
 import com.example.playlistmaker.library.ui.view_model.EditPlaylistViewModel
@@ -121,7 +120,7 @@ val dataModule = module {
     }
 
     single<PlaylistsRepository> {
-        PlaylistsRepositoryImpl(database = get())
+        PlaylistsRepositoryImpl(database = get(), context = get() )
     }
 
 
@@ -187,11 +186,9 @@ val viewModelModule = module {
     viewModel { FavoriteTracksViewModel(favoriteTracksInteractor = get()) }
     viewModel { PlaylistsViewModel(playlistsInteractor = get()) }
 
-    viewModel { PlaylistDetailsViewModel(playlistsInteractor = get()) }
+    viewModel { PlaylistDetailsViewModel(playlistsInteractor = get(), get()) }
+    viewModel { (playlistId: Long) -> EditPlaylistViewModel(get(), playlistId) }
 
-    viewModel { (playlist: Playlist?) -> EditPlaylistViewModel(get(), playlist) }
 }
-
-
 
 val appModule = listOf(networkModule, dataModule, domainModule, viewModelModule)

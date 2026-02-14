@@ -8,16 +8,16 @@
     android:fitsSystemWindows="true"
     android:theme="@style/Base.Theme.PlaylistMaker">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/light_grey"
+            app:layout_constraintTop_toTopOf="parent"
             app:navigationIconTint="@color/YP_black"
             app:navigationIcon="@drawable/ic_back_arrow_24"
             app:titleTextColor="@color/white" />
@@ -27,19 +27,22 @@
             android:id="@+id/contentGroup"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
+            app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="wrap_content">
 
 
                 <FrameLayout
+                    android:id="@+id/coverContainer"
                     android:layout_width="match_parent"
                     android:layout_height="360dp"
                     android:background="@color/light_grey"
-                    android:layout_margin="24dp">
+                    android:layout_margin="24dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
                         android:id="@+id/ivCover"
@@ -61,31 +64,42 @@
 
                 <TextView
                     android:id="@+id/tvPlaylistName"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textColor="@color/YP_black"
                     android:textSize="24sp"
                     android:textStyle="bold"
-                    android:layout_marginStart="16dp"
                     android:layout_marginBottom="8dp"
-                    tools:text="My Playlist" />
+                    tools:text="My Playlist"
+                    android:layout_marginHorizontal="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/coverContainer"/>
 
                 <TextView
                     android:id="@+id/tvDescription"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textColor="@color/YP_black"
                     android:textSize="16sp"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginStart="16dp"
-                    tools:text="2022" />
+                    tools:text="2022"
+                    android:layout_marginHorizontal="16dp"
+                    app:layout_constraintBottom_toTopOf="@+id/infoContainer"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvPlaylistName" />
 
                 <LinearLayout
+                    android:id="@+id/infoContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginStart="16dp"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="16dp"
+                    app:layout_constraintBottom_toTopOf="@+id/actionContainer"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tvDescription">
 
                     <TextView
                         android:id="@+id/tvTotalDuration"
@@ -114,10 +128,14 @@
 
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/actionContainer"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginStart="16dp">
+                    android:layout_marginStart="16dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/infoContainer">
 
                     <ImageButton
                         android:id="@+id/btnShare"
@@ -137,28 +155,20 @@
 
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="280dp"
-                    android:visibility="invisible"
-                    android:layout_marginTop="24dp" />
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/bottom_sheet_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="bottom"
         android:orientation="vertical"
         android:layout_marginTop="24dp"
         android:background="@drawable/bottom_sheet_background"
-        app:behavior_hideable="false"
-        app:behavior_peekHeight="350dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        android:elevation="8dp">
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
 
         <ProgressBar
@@ -203,10 +213,7 @@
                 android:textSize="16sp" />
 
         </LinearLayout>
-
     </LinearLayout>
-
-
 
     <LinearLayout
         android:id="@+id/menu_bottom_sheet_container"
@@ -215,8 +222,6 @@
         android:layout_gravity="bottom"
         android:orientation="vertical"
         android:background="@drawable/bottom_sheet_background"
-        app:behavior_hideable="true"
-        app:behavior_peekHeight="200dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
         android:elevation="8dp">
 
@@ -289,5 +294,6 @@
         android:visibility="gone"
         android:clickable="true"
         android:focusable="true"/>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

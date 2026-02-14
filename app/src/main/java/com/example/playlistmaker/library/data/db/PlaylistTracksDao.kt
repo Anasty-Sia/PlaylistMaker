@@ -30,4 +30,7 @@ interface PlaylistTracksDao {
     @Delete
     suspend fun deleteTrack(track: PlaylistTrackEntity): Int
 
+    @Query("SELECT * FROM playlist_tracks WHERE track_id IN (:trackIds) ORDER BY added_date DESC")
+    suspend fun getTracksByIdsOrdered(trackIds: List<Int>): List<PlaylistTrackEntity>
+
 }

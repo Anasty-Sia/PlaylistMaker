@@ -501,6 +501,7 @@ class PlayerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        (activity as? RootActivity)?.hideBottomNavigationView()
         isBottomSheetAnimating = false
         viewModel.loadPlaylists()
     }

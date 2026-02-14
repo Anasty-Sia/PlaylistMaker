@@ -1,5 +1,7 @@
 package com.example.playlistmaker.library.data.repository.impl
 
+import android.content.Context
+import com.example.playlistmaker.R
 import com.example.playlistmaker.library.data.db.AppDatabase
 import com.example.playlistmaker.library.data.db.PlaylistEntity
 import com.example.playlistmaker.library.data.db.PlaylistTrackEntity
@@ -13,7 +15,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlaylistsRepositoryImpl(
-    private val database: AppDatabase
+    private val database: AppDatabase,  private val context: Context
 ) : PlaylistsRepository {
 
     override suspend fun addTrackToPlaylist(playlistId: Long, track: Track) {
@@ -36,7 +38,8 @@ class PlaylistsRepositoryImpl(
             releaseDate = track.releaseDate,
             primaryGenreName = track.primaryGenreName,
             country = track.country,
-            previewUrl = track.previewUrl
+            previewUrl = track.previewUrl,
+            addedDate = System.currentTimeMillis()
         )
 
         val trackExists = database.playlistTracksDao().trackExists(track.trackId)
@@ -66,15 +69,15 @@ class PlaylistsRepositoryImpl(
         val trackEntities = database.playlistTracksDao().getTracksByIds(trackIds)
 
         val trackMap = trackEntities.associateBy { it.trackId }
-        val sortedTracks = trackIds.mapNotNull { trackMap[it] }
+        val sortedTracks = trackIds.reversed().mapNotNull { trackMap[it] }
 
         val favoriteTrackIds = database.favoriteTracksDao().getAllFavoriteTrackIds()
 
         return sortedTracks.map { entity ->
             Track(
                 trackId = entity.trackId,
-                trackName = entity.trackName ?: "",
-                artistName = entity.artistName ?: "",
+                trackName = entity.trackName,
+                artistName = entity.artistName,
                 trackTimeMillis = entity.trackTimeMillis ?: 0L,
                 artworkUrl100 = entity.artworkUrl100,
                 collectionName = entity.collectionName,
@@ -121,10 +124,16 @@ class PlaylistsRepositoryImpl(
         return database.playlistsDao().getPlaylistById(playlistId)?.toPlaylist()
     }
 
+    override fun getPlaylistByIdFlow(playlistId: Long): Flow<Playlist?> {
+        return database.playlistsDao().getPlaylistByIdFlow(playlistId)
+            .map { entity ->
+                entity?.toPlaylist()
+            }
+    }
+
     override suspend fun deletePlaylist(playlistId: Long) {
         database.playlistsDao().deletePlaylist(playlistId)
     }
-
 
     override suspend fun isTrackInPlaylist(playlistId: Long, trackId: Int): Boolean {
         val playlistEntity = database.playlistsDao().getPlaylistById(playlistId)
@@ -170,7 +179,6 @@ class PlaylistsRepositoryImpl(
         }
     }
 
-
     override suspend fun sharePlaylist(playlistId: Long): String? {
         val playlist = getPlaylistById(playlistId) ?: return null
         val tracks = getPlaylistTracks(playlistId)
@@ -182,7 +190,10 @@ class PlaylistsRepositoryImpl(
             if (!playlist.description.isNullOrEmpty()) {
                 appendLine(playlist.description)
             }
-            val trackCountText = getTrackCountText(tracks.size)
+            val trackCountText = context.resources.getQuantityString(
+                R.plurals.tracks_count,
+                tracks.size,
+                tracks.size)
             appendLine(trackCountText)
             appendLine()
 
@@ -203,15 +214,6 @@ class PlaylistsRepositoryImpl(
             SimpleDateFormat("mm:ss", Locale.getDefault()).format(timeMillis ?: 0)
         } catch (e: Exception) {
             "0:00"
-        }
-    }
-
-
-    private fun getTrackCountText(count: Int): String {
-        return when {
-            count % 10 == 1 && count % 100 != 11 -> "$count трек"
-            count % 10 in 2..4 && count % 100 !in 12..14 -> "$count трека"
-            else -> "$count треков"
         }
     }
 

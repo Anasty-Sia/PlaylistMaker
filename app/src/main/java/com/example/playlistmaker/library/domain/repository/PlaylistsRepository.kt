@@ -21,6 +21,6 @@ interface PlaylistsRepository {
     suspend fun sharePlaylist(playlistId: Long): String?
     suspend fun deletePlaylistWithTracks(playlistId: Long)
 
-
+    fun getPlaylistByIdFlow(playlistId: Long): Flow<Playlist?>
 
 }

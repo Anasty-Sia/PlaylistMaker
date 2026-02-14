@@ -50,4 +50,8 @@ class PlaylistsInteractorImpl(
         repository.deletePlaylistWithTracks(playlistId)
     }
 
+    override fun getPlaylistByIdFlow(playlistId: Long): Flow<Playlist?> {
+        return repository.getPlaylistByIdFlow(playlistId)
+    }
+
 }

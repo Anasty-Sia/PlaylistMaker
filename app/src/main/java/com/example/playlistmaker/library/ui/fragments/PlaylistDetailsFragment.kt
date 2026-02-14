@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -41,6 +40,7 @@ class PlaylistDetailsFragment : Fragment() {
     private lateinit var tracksBottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var menuBottomSheetBehavior: BottomSheetBehavior<View>
     private lateinit var backPressedCallback: OnBackPressedCallback
+
 
 
     override fun onCreateView(
@@ -102,9 +102,10 @@ class PlaylistDetailsFragment : Fragment() {
     private fun setupBottomSheets() {
         tracksBottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheetContainer)
         tracksBottomSheetBehavior.isHideable = false
-        tracksBottomSheetBehavior.peekHeight = 500
-        tracksBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-
+        val displayMetrics = resources.displayMetrics
+        val screenHeight = displayMetrics.heightPixels
+        tracksBottomSheetBehavior.peekHeight = screenHeight /4
+        tracksBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
         menuBottomSheetBehavior = BottomSheetBehavior.from(binding.menuBottomSheetContainer)
         menuBottomSheetBehavior.isHideable = true
@@ -120,17 +121,10 @@ class PlaylistDetailsFragment : Fragment() {
                     BottomSheetBehavior.STATE_HIDDEN -> {
                         binding.overlay.isVisible = false
                         binding.overlay.alpha = 0f
-                        binding.root.post {
-                            try {
-                                if (_binding != null && ::tracksBottomSheetBehavior.isInitialized) {
-                                    tracksBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                                }
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
                     }
-                    BottomSheetBehavior.STATE_EXPANDED -> {
+                    BottomSheetBehavior.STATE_EXPANDED,
+                    BottomSheetBehavior.STATE_COLLAPSED,
+                    BottomSheetBehavior.STATE_HALF_EXPANDED -> {
                         binding.overlay.isVisible = true
                         binding.overlay.alpha = 0.6f
                     }
@@ -198,55 +192,35 @@ class PlaylistDetailsFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        viewModel.playlist.observe(viewLifecycleOwner) { playlist ->
+        viewModel.state.observe(viewLifecycleOwner) { state ->
             if (_binding == null) return@observe
-            if (playlist == null) {
-                Toast.makeText(requireContext(), "Плейлист не найден", Toast.LENGTH_SHORT).show()
-                findNavController().navigateUp()
-                return@observe
+            state.playlist?.let { playlist ->
+                updatePlaylistInfo(playlist)
             }
-            updatePlaylistInfo(playlist)
-        }
+            updateTracksList(state.tracks)
+            binding.tvTotalDuration.text = state.totalDuration
 
-        viewModel.playlistTracks.observe(viewLifecycleOwner) { tracks ->
-            if (_binding == null) return@observe
-            updateTracksList(tracks)
-        }
-
-        viewModel.totalDuration.observe(viewLifecycleOwner) { duration ->
-            if (_binding == null) return@observe
-            binding.tvTotalDuration.text = duration
-        }
-
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (_binding == null) return@observe
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            binding.bottomSheetProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.progressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
+            binding.bottomSheetProgressBar.visibility = if (state.isLoading) View.VISIBLE else View.GONE
         }
 
         viewModel.shareResult.observe(viewLifecycleOwner) { shareText ->
-            if (_binding == null) return@observe
-            shareText?.let {
-                sharePlaylistText(it)
-            }
+            shareText?.let { sharePlaylistText(it) }
         }
 
         viewModel.showEmptyPlaylistToast.observe(viewLifecycleOwner) { show ->
-            if (_binding == null) return@observe
             if (show) {
                 Toast.makeText(
                     requireContext(),
-                    "В этом плейлисте нет списка треков, которым можно поделиться",
+                    getString(R.string.empty_playlist_share_message),
                     Toast.LENGTH_SHORT
                 ).show()
-                viewModel.resetShowEmptyPlaylistToast()
             }
         }
 
-        viewModel.playlistDeleted.observe(viewLifecycleOwner) { isDeleted ->
-            if (_binding == null) return@observe
-            if (isDeleted) {
-                (activity as? RootActivity)?.showGlobalToast("Плейлист удалён")
+        viewModel.navigateBack.observe(viewLifecycleOwner) { shouldNavigate ->
+            if (shouldNavigate) {
+                (activity as? RootActivity)?.showGlobalToast(getString(R.string.playlist_deleted))
                 findNavController().navigateUp()
             }
         }
@@ -288,6 +262,7 @@ class PlaylistDetailsFragment : Fragment() {
         if (tracks.isEmpty()) {
             binding.emptyTracksState.visibility = View.VISIBLE
             binding.rvTracks.visibility = View.GONE
+            tracksBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         } else {
             binding.emptyTracksState.visibility = View.GONE
             binding.rvTracks.visibility = View.VISIBLE
@@ -296,7 +271,7 @@ class PlaylistDetailsFragment : Fragment() {
             binding.root.post {
                 try {
                     if (_binding != null && ::tracksBottomSheetBehavior.isInitialized) {
-                        tracksBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                        tracksBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -318,9 +293,13 @@ class PlaylistDetailsFragment : Fragment() {
     }
 
     private fun navigateToEditPlaylist() {
-        val currentPlaylist = viewModel.playlist.value ?: return
-        val bundle = bundleOf("playlist" to currentPlaylist)
-        findNavController().navigate(R.id.editPlaylistFragment, bundle)
+
+        val currentPlaylist = viewModel.state.value ?.playlist?: return
+        val bundle = Bundle().apply {
+            putLong("playlistId", currentPlaylist.playlistId)
+        }
+            findNavController().navigate(R.id.editPlaylistFragment, bundle)
+
     }
 
     private fun showDeleteTrackDialog(track: Track) {
@@ -378,8 +357,6 @@ class PlaylistDetailsFragment : Fragment() {
         )
     }
 
-
-
     override fun onResume() {
         super.onResume()
         (activity as? RootActivity)?.hideBottomNavigationView()
@@ -399,10 +376,9 @@ class PlaylistDetailsFragment : Fragment() {
         super.onDestroyView()
         (activity as? RootActivity)?.showBottomNavigationView()
         backPressedCallback.remove()
+        if (::menuBottomSheetBehavior.isInitialized) {
+            menuBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
         _binding = null
     }
-
-
-
-
 }
