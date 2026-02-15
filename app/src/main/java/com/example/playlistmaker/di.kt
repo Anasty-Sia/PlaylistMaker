@@ -11,6 +11,8 @@ import com.example.playlistmaker.library.domain.interactor.impl.FavoriteTracksIn
 import com.example.playlistmaker.library.domain.interactor.impl.PlaylistsInteractorImpl
 import com.example.playlistmaker.library.domain.repository.FavoriteTracksRepository
 import com.example.playlistmaker.library.domain.repository.PlaylistsRepository
+import com.example.playlistmaker.library.ui.view_model.EditPlaylistViewModel
+import com.example.playlistmaker.library.ui.view_model.PlaylistDetailsViewModel
 import com.example.playlistmaker.library.ui.view_model.FavoriteTracksViewModel
 import com.example.playlistmaker.library.ui.view_model.PlaylistsViewModel
 import com.example.playlistmaker.player.data.repository.impl.PlayerRepositoryImpl
@@ -39,10 +41,14 @@ import com.example.playlistmaker.settings.domain.interactor.SharingInteractor
 import com.example.playlistmaker.settings.domain.interactor.impl.SharingInteractorImpl
 import com.example.playlistmaker.settings.ui.view_model.SettingsViewModel
 import com.google.gson.Gson
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+
+
+
 
 
 
@@ -82,6 +88,15 @@ val dataModule = module {
             favoriteTracksRepository = get())
     }
 
+    single<TrackRepository> {
+        TrackRepositoryImpl(get(), get(), get())  // Исправлено: передаем Gson и favoriteTracksRepository
+    }
+
+    single<SearchHistoryRepository> {
+        SearchHistoryRepositoryImpl(androidContext(), get(), get())  // Исправлен порядок параметров
+    }
+
+
     single<SettingsRepository> {
         SettingsRepositoryImpl(context = get())
     }
@@ -105,7 +120,7 @@ val dataModule = module {
     }
 
     single<PlaylistsRepository> {
-        PlaylistsRepositoryImpl(database = get())
+        PlaylistsRepositoryImpl(database = get(), context = get() )
     }
 
 
@@ -171,8 +186,9 @@ val viewModelModule = module {
     viewModel { FavoriteTracksViewModel(favoriteTracksInteractor = get()) }
     viewModel { PlaylistsViewModel(playlistsInteractor = get()) }
 
+    viewModel { PlaylistDetailsViewModel(playlistsInteractor = get(), get()) }
+    viewModel { (playlistId: Long) -> EditPlaylistViewModel(get(), playlistId) }
+
 }
-
-
 
 val appModule = listOf(networkModule, dataModule, domainModule, viewModelModule)

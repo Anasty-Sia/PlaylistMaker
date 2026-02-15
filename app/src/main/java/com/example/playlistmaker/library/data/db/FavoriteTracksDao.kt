@@ -29,4 +29,6 @@ interface FavoriteTracksDao {
 
     @Query("SELECT * FROM favorite_tracks WHERE track_id = :trackId")
     suspend fun getTrackById(trackId: Int): FavoriteTrackEntity?
+
+
 }

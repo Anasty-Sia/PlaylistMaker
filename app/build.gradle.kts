@@ -85,8 +85,8 @@ dependencies {
     kapt(libs.androidx.room.compiler)
 
 
+}
 
-
-
-
+kapt {
+    correctErrorTypes = true
 }

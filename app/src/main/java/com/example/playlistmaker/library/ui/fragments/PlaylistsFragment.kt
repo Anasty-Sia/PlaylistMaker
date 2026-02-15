@@ -5,13 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.playlistmaker.R
 import com.example.playlistmaker.databinding.FragmentPlaylistsBinding
 import com.example.playlistmaker.library.ui.adapters.PlaylistsAdapter
 import com.example.playlistmaker.library.ui.view_model.PlaylistsState
 import com.example.playlistmaker.library.ui.view_model.PlaylistsViewModel
+import com.example.playlistmaker.root.RootActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlaylistsFragment : Fragment() {
@@ -20,6 +21,8 @@ class PlaylistsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: PlaylistsViewModel by viewModel()
+
+
     private lateinit var playlistsAdapter: PlaylistsAdapter
 
     override fun onCreateView(
@@ -41,18 +44,22 @@ class PlaylistsFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        try {
-            playlistsAdapter = PlaylistsAdapter {
-
+        playlistsAdapter = PlaylistsAdapter { playlist ->
+            try {
+                val bundle = Bundle().apply {
+                    putLong("playlistId", playlist.playlistId)  // Важно: используем тот же ключ
+                }
+                findNavController().navigate(R.id.playlistDetailsFragment, bundle)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-
-            val gridLayoutManager = GridLayoutManager(requireContext(), 2)
-            binding.recyclerViewPlaylists.layoutManager = gridLayoutManager
-            binding.recyclerViewPlaylists.adapter = playlistsAdapter
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
+
+        val gridLayoutManager = GridLayoutManager(requireContext(), 2)
+        binding.recyclerViewPlaylists.layoutManager = gridLayoutManager
+        binding.recyclerViewPlaylists.adapter = playlistsAdapter
     }
+
 
     private fun observeViewModel() {
         viewModel.playlistsState.observe(viewLifecycleOwner) { state ->
@@ -81,15 +88,11 @@ class PlaylistsFragment : Fragment() {
 
     private fun setupCreatePlaylistButton() {
 
-
-        binding.createPlaylistButton.apply {
-
-            setOnClickListener {
-                try {
-                    findNavController().navigate(R.id.action_libraryFragment_to_newPlaylistFragment)
-                } catch (e: Exception) {
-                    findNavController().navigate(R.id.newPlaylistFragment)
-                }
+        binding.createPlaylistButton.setOnClickListener {
+            try {
+                findNavController().navigate(R.id.newPlaylistFragment)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -101,6 +104,7 @@ class PlaylistsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        (activity as? RootActivity)?.showBottomNavigationView()
         _binding = null
     }
 }
