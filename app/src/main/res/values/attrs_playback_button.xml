@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PlaybackButtonView">
+        <attr name="playIcon" format="reference" />
+        <attr name="pauseIcon" format="reference" />
+        <attr name="android:background" format="reference|color" />
+    </declare-styleable>
+</resources>

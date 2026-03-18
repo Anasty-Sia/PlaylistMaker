@@ -71,6 +71,7 @@ class PlayerFragment : Fragment() {
         currentTrack = track
         setupPlayerUI(track)
 
+
         setupBottomSheet(track)
 
         viewModel.preparePlayer(track)
@@ -160,7 +161,7 @@ class PlayerFragment : Fragment() {
         viewModel.playerState.observe(viewLifecycleOwner) { state ->
             if (!isAdded) return@observe
 
-            updatePlayButtonState(state.playbackState is PlaybackState.PLAYING)
+            binding.ivPlayButton.setPlayingState(state.playbackState is PlaybackState.PLAYING)
             updateFavoriteButton(state.isFavorite)
             binding.tvTrackTimePlayer.text = formatTime(state.currentPosition)
 
@@ -438,14 +439,6 @@ class PlayerFragment : Fragment() {
                 Log.e("PlayerFragment", "Navigation error to new playlist", e)
             }
         }, 300)
-    }
-
-    private fun updatePlayButtonState(isPlaying: Boolean) {
-        if (isPlaying) {
-            binding.ivPlayButton.setImageResource(R.drawable.ic_pause)
-        } else {
-            binding.ivPlayButton.setImageResource(R.drawable.ic_play_arrow)
-        }
     }
 
     private fun updateFavoriteButton(isFavorite: Boolean) {
