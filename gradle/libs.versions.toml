@@ -1,32 +1,34 @@
 [versions]
-agp = "8.13.1"
+agp = "8.7.3"
 fragmentKtx = "1.8.9"
 fragmentKtxVersion = "1.8.9"
 googleMaterial = "1.13.0"
-koinAndroid = "4.1.1"
-kotlin = "2.2.21"
-coreKtx = "1.17.0"
+koinAndroid = "3.5.6"
+kotlin = "1.9.24"
+coreKtx = "1.12.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 appcompat = "1.7.1"
 lifecycleViewmodelKtx = "2.10.0"
 material = "1.13.0"
-activity = "1.12.1"
+activity = "1.8.2"
 constraintlayout = "2.2.1"
 appcompatVersion = "1.7.1"
 
 gson = "2.13.2"
 materialVersion = "1.13.0"
-navigationFragmentKtxVersion = "2.9.6"
-navigationUiKtxVersion = "2.9.6"
-retrofit = "3.0.0"
+navigationFragmentKtxVersion = "2.7.7"
+navigationUiKtxVersion = "2.7.7"
+retrofit = "2.9.0"
 glide = "5.0.5"
 recyclerview = "1.4.0"
-roomRuntime = "2.8.4"
+roomRuntime = "2.6.1"
 viewpager2 = "1.1.0"
-navigationFragmentKtx = "2.9.6"
-navigationUiKtx = "2.9.6"
+navigationFragmentKtx = "2.7.7"
+navigationUiKtx = "2.7.7"
+androidxNavigationFragmentKtx = "2.9.7"
+androidxNavigationUiKtx = "2.9.7"
 
 
 
@@ -62,6 +64,8 @@ glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", versi
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
+navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "androidxNavigationFragmentKtx" }
+navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "androidxNavigationUiKtx" }
 
 
 [bundles]

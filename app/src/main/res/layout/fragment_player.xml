@@ -105,15 +105,19 @@
                 app:layout_constraintTop_toBottomOf="@id/tvTrackNamePlayer"
                 tools:text="The Beatles" />
 
-            <ImageButton
+            <com.example.playlistmaker.player.ui.view_model.PlaybackButtonView
                 android:id="@+id/ivPlayButton"
-                style="@style/PlayPauseButtonStyle"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_marginTop="30dp"
                 android:contentDescription="@string/play_pause"
-                android:src="@drawable/ic_play_arrow"
+                app:playIcon="@drawable/ic_play_arrow"
+                app:pauseIcon="@drawable/ic_pause"
                 app:layout_constraintEnd_toStartOf="@id/playerEndBaseLine"
                 app:layout_constraintStart_toEndOf="@id/playerStartBaseLine"
                 app:layout_constraintTop_toBottomOf="@id/tvArtistNamePlayer" />
+
+
 
             <TextView
                 android:id="@+id/tvTrackTimePlayer"
