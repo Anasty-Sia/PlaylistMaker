@@ -120,12 +120,7 @@ class PlayerFragment : Fragment() {
             playerService = binder.getService()
             isBound = true
 
-            currentTrack?.let { binder.setTrack(it) }
-
             viewModel.bindService(object : PlayerServiceConnector {
-                override fun setTrack(track: Track) {
-                    playerService?.let { binder.setTrack(track) }
-                }
 
                 override fun preparePlayer() {
                     playerService?.preparePlayer()

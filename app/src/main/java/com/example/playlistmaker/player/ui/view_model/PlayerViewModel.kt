@@ -191,7 +191,6 @@ class PlayerViewModel(
                     isFavorite = isFavorite,
                     currentPosition = 0
                 )
-                serviceConnector?.setTrack(track)
                 serviceConnector?.preparePlayer()
             } catch (e: Exception) {
                 _playerState.value = PlayerState(

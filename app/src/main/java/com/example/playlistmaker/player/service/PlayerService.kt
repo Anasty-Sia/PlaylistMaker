@@ -1,6 +1,10 @@
 package com.example.playlistmaker.player.service
 
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
 import android.media.MediaPlayer
@@ -21,6 +25,7 @@ class PlayerService : Service() {
     private var currentTrack: Track? = null
     private var currentState: PlaybackState = PlaybackState.DEFAULT
 
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var progressJob: Job? = null
     private var stateListener: PlayerStateListener? = null
     private var isForegroundActive = false
@@ -28,9 +33,6 @@ class PlayerService : Service() {
     inner class PlayerBinder : Binder() {
         fun getService(): PlayerService = this@PlayerService
 
-        fun setTrack(track: Track) {
-            currentTrack = track
-        }
     }
 
     override fun onCreate() {
@@ -53,6 +55,7 @@ class PlayerService : Service() {
         stopPlayback()
         releasePlayer()
         progressJob?.cancel()
+        serviceScope.cancel()
         hideForegroundNotification()
         super.onDestroy()
     }
@@ -85,11 +88,6 @@ class PlayerService : Service() {
             currentState = PlaybackState.ERROR("Ошибка: ${e.message}")
             notifyStateChanged()
         }
-    }
-
-    fun preparePlayer(track: Track) {
-        currentTrack = track
-        preparePlayer()
     }
 
     fun startPlayer() {
@@ -205,7 +203,7 @@ class PlayerService : Service() {
 
     private fun startProgressUpdates() {
         progressJob?.cancel()
-        progressJob = CoroutineScope(Dispatchers.Main).launch {
+        progressJob = serviceScope.launch {
             while (isActive && (currentState is PlaybackState.PLAYING)) {
                 delay(300)
                 notifyStateChanged()
