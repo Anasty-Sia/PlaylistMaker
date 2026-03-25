@@ -47,11 +47,6 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-
-
-
-
-
 private const val ITUNES_BASE_URL = "https://itunes.apple.com"
 
 val networkModule = module {
@@ -163,8 +158,8 @@ val domainModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { PlayerViewModel(
-        get(),
+    viewModel {
+        PlayerViewModel(
         favoriteTracksInteractor = get(),
         playlistsInteractor = get()
     ) }
@@ -188,6 +183,7 @@ val viewModelModule = module {
 
     viewModel { PlaylistDetailsViewModel(playlistsInteractor = get(), get()) }
     viewModel { (playlistId: Long) -> EditPlaylistViewModel(get(), playlistId) }
+
 
 }
 

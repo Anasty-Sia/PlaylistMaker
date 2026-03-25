@@ -1,7 +1,12 @@
 package com.example.playlistmaker.player.ui.activity
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import android.view.Gravity
@@ -26,6 +31,8 @@ import com.example.playlistmaker.databinding.FragmentPlayerBinding
 import com.example.playlistmaker.library.domain.model.Playlist
 import com.example.playlistmaker.library.ui.adapters.PlaylistBottomSheetAdapter
 import com.example.playlistmaker.player.domain.model.PlaybackState
+import com.example.playlistmaker.player.service.PlayerService
+import com.example.playlistmaker.player.service.PlayerServiceConnector
 import com.example.playlistmaker.player.ui.view_model.AddToPlaylistStatus
 import com.example.playlistmaker.player.ui.view_model.PlayerViewModel
 import com.example.playlistmaker.root.RootActivity
@@ -50,8 +57,10 @@ class PlayerFragment : Fragment() {
 
     private var isBottomSheetAnimating = false
     private var lastOpenTime = 0L
-    private val MIN_OPEN_INTERVAL = 500L // мс
+    private val MIN_OPEN_INTERVAL = 500L
     private lateinit var backCallback: OnBackPressedCallback
+    private var playerService: PlayerService? = null
+    private var isBound = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,12 +78,17 @@ class PlayerFragment : Fragment() {
 
         val track = args.track
         currentTrack = track
+
+        val intent = Intent(requireContext(), PlayerService::class.java).apply {
+            putExtra("track", track)
+        }
+        requireContext().bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+
         setupPlayerUI(track)
 
-
         setupBottomSheet(track)
+        viewModel.setTrack(track)
 
-        viewModel.preparePlayer(track)
         observeViewModel()
 
         backCallback = object : OnBackPressedCallback(true) {
@@ -88,6 +102,7 @@ class PlayerFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backCallback)
+
     }
 
     private fun setupEdgeToEdgeInsets() {
@@ -97,6 +112,64 @@ class PlayerFragment : Fragment() {
                 topMargin = systemBars.top
             }
             insets
+        }
+    }
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as PlayerService.PlayerBinder
+            playerService = binder.getService()
+            isBound = true
+
+            viewModel.bindService(object : PlayerServiceConnector {
+
+                override fun preparePlayer() {
+                    playerService?.preparePlayer()
+                }
+
+                override fun startPlayer() {
+                    playerService?.startPlayer()
+                }
+
+                override fun pausePlayer() {
+                    playerService?.pausePlayer()
+                }
+
+                override fun stopPlayback() {
+                    playerService?.stopPlayback()
+                }
+
+                override fun getPlaybackState(): PlaybackState {
+                    return playerService?.getPlaybackState() ?: PlaybackState.DEFAULT
+                }
+
+                override fun getCurrentPosition(): Int {
+                    return playerService?.getCurrentPosition() ?: 0
+                }
+
+                override fun getDuration(): Int {
+                    return playerService?.getDuration() ?: 0
+                }
+
+                override fun showForegroundNotification() {
+                    playerService?.showForegroundNotification()
+                }
+
+                override fun hideForegroundNotification() {
+                    playerService?.hideForegroundNotification()
+                }
+
+                override fun setStateListener(listener: PlayerService.PlayerStateListener?) {
+                    playerService?.setStateListener(listener)
+                }
+            })
+
+
+            viewModel.preparePlayer()
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            playerService = null
+            isBound = false
         }
     }
 
@@ -484,7 +557,7 @@ class PlayerFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.stopPlayback()
+        viewModel.setAppForegroundState(false)
 
         if (::bottomSheetBehavior.isInitialized &&
             bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN) {
@@ -497,6 +570,7 @@ class PlayerFragment : Fragment() {
         (activity as? RootActivity)?.hideBottomNavigationView()
         isBottomSheetAnimating = false
         viewModel.loadPlaylists()
+        viewModel.setAppForegroundState(true)
     }
 
     override fun onDestroyView() {
@@ -505,6 +579,12 @@ class PlayerFragment : Fragment() {
 
         if (::backCallback.isInitialized) {
             backCallback.remove()
+        }
+
+        if (isBound) {
+            viewModel.unbindService()
+            requireContext().unbindService(serviceConnection)
+            isBound = false
         }
 
         _binding = null
