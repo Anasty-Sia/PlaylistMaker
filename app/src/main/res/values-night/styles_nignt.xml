@@ -281,20 +281,7 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <style name="TextViewPlayerItem.Name">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:textAppearance">@style/PlayerTextStyle.Additional.Name</item>
-        <item name="layout_constraintStart_toEndOf">@id/playerAdditionalStartBaseLine</item>
-        <item name="android:paddingEnd">4dp</item>
-        <item name="layout_constraintHorizontal_bias">0.0</item>
-    </style>
 
-    <style name="TextViewPlayerItem.Item">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:textAppearance">@style/PlayerTextStyle.Additional.Item</item>
-        <item name="android:textAlignment">textEnd</item>
-        <item name="layout_constraintEnd_toStartOf">@id/playerAdditionalEndBaseLine</item>
-    </style>
 
     <style name="ImageButtonPlayer" parent="Widget.MaterialComponents.TimePicker.ImageButton">
         <item name="android:layout_height">48dp</item>

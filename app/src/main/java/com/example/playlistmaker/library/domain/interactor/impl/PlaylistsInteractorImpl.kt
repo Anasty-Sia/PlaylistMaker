@@ -1,5 +1,6 @@
 package com.example.playlistmaker.library.domain.interactor.impl
 
+import android.util.Log
 import com.example.playlistmaker.library.domain.interactor.PlaylistsInteractor
 import com.example.playlistmaker.library.domain.model.Playlist
 import com.example.playlistmaker.library.domain.repository.PlaylistsRepository
@@ -15,6 +16,7 @@ class PlaylistsInteractorImpl(
     }
 
     override fun getAllPlaylists(): Flow<List<Playlist>> {
+        Log.d("PlaylistsInteractor", "Getting all playlists")
         return repository.getAllPlaylists()
     }
 
