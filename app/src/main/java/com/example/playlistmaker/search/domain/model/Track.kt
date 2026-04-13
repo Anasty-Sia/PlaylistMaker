@@ -2,7 +2,8 @@ package com.example.playlistmaker.search.domain.model
 
 
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelizet
+import kotlinx.parcelize.Parcelize
+
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 

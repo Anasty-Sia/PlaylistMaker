@@ -120,6 +120,7 @@ fun PlayerScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+
     Scaffold(
         topBar = {
             TopAppBar(

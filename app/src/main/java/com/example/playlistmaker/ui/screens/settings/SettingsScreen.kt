@@ -1,6 +1,5 @@
 package com.example.playlistmaker.ui.screens.settings
 
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
@@ -75,13 +74,13 @@ fun SettingsScreen(
                     checked = isDarkTheme,
                     onCheckedChange = { enabled ->
                         viewModel.onThemeSwitchChanged(enabled)
-                        AppCompatDelegate.setDefaultNightMode(
-                            if (enabled) AppCompatDelegate.MODE_NIGHT_YES
-                            else AppCompatDelegate.MODE_NIGHT_NO
-                        )
                         scope.launch {
-                            delay(100)
-                            (context as? androidx.activity.ComponentActivity)?.recreate()
+                            delay(200)
+                            val intent = (context as? androidx.activity.ComponentActivity)?.intent
+                            intent?.let {
+                                (context).finish()
+                                (context).startActivity(intent)
+                            }
                         }
                     },
                     colors = SwitchDefaults.colors(

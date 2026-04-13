@@ -32,6 +32,8 @@ fun PlaylistMakerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
+
+
     val colorScheme = if (darkTheme) {
         darkColorScheme(
             primary = BlueSurface,

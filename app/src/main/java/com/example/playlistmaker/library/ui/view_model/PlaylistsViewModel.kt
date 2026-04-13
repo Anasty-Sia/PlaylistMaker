@@ -1,6 +1,5 @@
 package com.example.playlistmaker.library.ui.view_model
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.library.domain.interactor.PlaylistsInteractor
@@ -59,38 +58,9 @@ class PlaylistsViewModel( private val playlistsInteractor: PlaylistsInteractor
         }
     }
 
+
     suspend fun createPlaylist(playlist: Playlist): Long {
         return playlistsInteractor.createPlaylist(playlist)
-
-
     }
 
-    suspend fun updatePlaylist(playlist: Playlist) {
-        playlistsInteractor.updatePlaylist(playlist)
-
-    }
-
-    suspend fun deletePlaylist(playlistId: Long) {
-        playlistsInteractor.deletePlaylist(playlistId)
-
-    }
-
-    suspend fun addTrackToPlaylist(playlistId: Long, track: Track) {
-        playlistsInteractor.addTrackToPlaylist(playlistId, track)
-
-    }
-
-    suspend fun removeTrackFromPlaylist(playlistId: Long, trackId: Int) {
-        playlistsInteractor.deleteTrackFromPlaylist(playlistId, trackId)
-
-    }
-
-    suspend fun getPlaylistById(playlistId: Long): Playlist? {
-        return playlistsInteractor.getPlaylistById(playlistId)
-    }
-    sealed class PlaylistsState {
-        object Empty : PlaylistsState()
-        object Loading : PlaylistsState()
-        data class Content(val playlists: List<Playlist>) : PlaylistsState()
-    }
 }

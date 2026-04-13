@@ -34,6 +34,7 @@ import com.example.playlistmaker.R
 import com.example.playlistmaker.library.domain.model.Playlist
 import com.example.playlistmaker.library.ui.view_model.FavoriteTracksState
 import com.example.playlistmaker.library.ui.view_model.FavoriteTracksViewModel
+import com.example.playlistmaker.library.ui.view_model.PlaylistsState
 import com.example.playlistmaker.library.ui.view_model.PlaylistsViewModel
 import com.example.playlistmaker.search.domain.model.Track
 import org.koin.androidx.compose.koinViewModel
@@ -241,7 +242,7 @@ fun PlaylistsContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         when (val currentState = state) {
-            is PlaylistsViewModel.PlaylistsState.Loading -> {
+            is PlaylistsState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -249,10 +250,10 @@ fun PlaylistsContent(
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
-            is PlaylistsViewModel.PlaylistsState.Empty -> {
+            is PlaylistsState.Empty -> {
                 PlaylistsEmptyState(onCreatePlaylistClick = onCreatePlaylistClick)
             }
-            is PlaylistsViewModel.PlaylistsState.Content -> {
+            is PlaylistsState.Content -> {
                 val playlists = currentState.playlists
                 if (playlists.isEmpty()) {
                     PlaylistsEmptyState(onCreatePlaylistClick = onCreatePlaylistClick)
@@ -471,34 +472,5 @@ fun PlaylistGridCard(
             fontSize = 11.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-    }
-}
-
-@Composable
-fun PlaylistCoverImage(
-    coverPath: String?,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center
-    ) {
-        if (!coverPath.isNullOrEmpty() && File(coverPath).exists()) {
-            AsyncImage(
-                model = File(coverPath),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            Icon(
-                painter = painterResource(R.drawable.ic_placeholder_45),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(0.6f),
-                tint = Color.Gray
-            )
-        }
     }
 }

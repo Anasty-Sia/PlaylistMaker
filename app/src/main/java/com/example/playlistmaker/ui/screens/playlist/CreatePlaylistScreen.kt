@@ -60,19 +60,31 @@ fun CreatePlaylistScreen(
     val context = LocalContext.current
     val lifecycleScope = rememberCoroutineScope()
 
+    val playlistCreatedText = stringResource(R.string.playlist_created, name.trim())
+    val errorCreatingPlaylistText = stringResource(R.string.error_creating_playlist)
+    val createButtonText = stringResource(R.string.create)
+
 
     LaunchedEffect(Unit) {
         FileManager.initPlaylistsDirectory(context)
     }
 
-    val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    val permission = remember{
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         Manifest.permission.READ_MEDIA_IMAGES
     } else {
         Manifest.permission.READ_EXTERNAL_STORAGE
     }
+        }
 
-    val hasPermission =
-        ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+    val hasPermission by  remember {
+        derivedStateOf {
+            ContextCompat.checkSelfPermission(
+                context,
+                permission
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+    }
 
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -237,16 +249,11 @@ fun CreatePlaylistScreen(
                                 )
                                 val playlistId = viewModel.createPlaylist(playlist)
 
-
-                                trackToAdd?.let { track ->
-                                    viewModel.addTrackToPlaylist(playlistId, track)
-                                }
-
                                 viewModel.refresh()
 
                                 Toast.makeText(
                                     context,
-                                    context.getString(R.string.playlist_created, name.trim()),
+                                    playlistCreatedText,
                                     Toast.LENGTH_SHORT
                                 ).show()
 
@@ -255,7 +262,7 @@ fun CreatePlaylistScreen(
 
                                 Toast.makeText(
                                     context,
-                                    R.string.error_creating_playlist,
+                                    errorCreatingPlaylistText,
                                     Toast.LENGTH_SHORT
                                 ).show()
                             } finally {
@@ -272,11 +279,11 @@ fun CreatePlaylistScreen(
                     containerColor = if (name.isNotBlank())
                         MaterialTheme.colorScheme.primary
                     else
-                        Color(0xFF535459) // цвет из XML
+                        Color(0xFF535459)
                 )
             ) {
                 Text(
-                    text = stringResource(R.string.create),
+                    createButtonText,
                     color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
