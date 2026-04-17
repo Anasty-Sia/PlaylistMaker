@@ -23,31 +23,43 @@ class SearchHistoryRepositoryImpl(private val context: Context,
 
     private val _historyFlow = MutableStateFlow<List<Track>>(emptyList())
 
-    override suspend fun loadHistory() = withContext(Dispatchers.IO) {
-        val history = getHistoryFromStorage()
-        val favoriteTrackIds = favoriteTracksRepository.getFavoriteTrackIds()
+    override suspend fun loadHistory(): List<Track> = withContext(Dispatchers.IO) {
+        try {
+            val history = getHistoryFromStorage()
+            val favoriteTrackIds = favoriteTracksRepository.getFavoriteTrackIds()
 
-        val historyWithFavorites = history.map { track ->
-            track.copy(isFavorite = track.trackId in favoriteTrackIds)
+            val historyWithFavorites = history.map { track ->
+                track.copy(isFavorite = track.trackId in favoriteTrackIds)
+            }
+
+            _historyFlow.update { historyWithFavorites }
+            return@withContext historyWithFavorites
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext emptyList()
         }
-
-        _historyFlow.update { historyWithFavorites }
-
     }
 
     override suspend fun addTrackToHistory(track: Track) = withContext(Dispatchers.IO) {
-        val history = getHistoryFromStorage().toMutableList()
+        try {
+            val history = getHistoryFromStorage().toMutableList()
 
-        history.removeAll { it.trackId == track.trackId }
-        history.add(0, track)
+            history.removeAll { it.trackId == track.trackId }
+            history.add(0, track)
 
-        if (history.size > maxSize) {
-            history.removeAt(history.size - 1)
+            if (history.size > maxSize) {
+                history.removeAt(history.size - 1)
+            }
+
+            saveHistory(history)
+            val favoriteTrackIds = favoriteTracksRepository.getFavoriteTrackIds()
+            val historyWithFavorites = history.map { trackItem ->
+                trackItem.copy(isFavorite = trackItem.trackId in favoriteTrackIds)
+            }
+            _historyFlow.update { historyWithFavorites }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-
-        saveHistory(history)
-        _historyFlow.update {history}
-
     }
 
     override fun getSearchHistory(): Flow<List<Track>>{

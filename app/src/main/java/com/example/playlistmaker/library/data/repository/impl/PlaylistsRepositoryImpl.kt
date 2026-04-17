@@ -15,7 +15,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlaylistsRepositoryImpl(
-    private val database: AppDatabase,  private val context: Context
+    private val database: AppDatabase,
+    private val context: Context
 ) : PlaylistsRepository {
 
     override suspend fun addTrackToPlaylist(playlistId: Long, track: Track) {

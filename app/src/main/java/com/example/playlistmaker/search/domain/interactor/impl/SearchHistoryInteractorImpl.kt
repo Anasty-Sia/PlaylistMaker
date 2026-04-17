@@ -6,21 +6,22 @@ import com.example.playlistmaker.search.domain.model.Track
 import kotlinx.coroutines.flow.Flow
 
 class SearchHistoryInteractorImpl(
-    private val searchHistoryRepository: SearchHistoryRepository) : SearchHistoryInteractor {
+    private val repository: SearchHistoryRepository) : SearchHistoryInteractor {
 
-    override suspend fun loadHistory() {
-        searchHistoryRepository.loadHistory()
+
+    override suspend fun loadHistoryAndGet(): List<Track> {
+        return repository.loadHistory()
     }
 
     override suspend fun addTrackToHistory(track: Track) {
-        searchHistoryRepository.addTrackToHistory(track)
+        repository.addTrackToHistory(track)
     }
 
     override fun getSearchHistory(): Flow<List<Track>> {
-        return searchHistoryRepository.getSearchHistory()
+        return repository.getSearchHistory()
     }
 
     override suspend fun clearSearchHistory() {
-        searchHistoryRepository.clearSearchHistory()
+        repository.clearSearchHistory()
     }
 }

@@ -3,8 +3,9 @@ package com.example.playlistmaker.search.domain.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import java.text.SimpleDateFormat
+
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 @Parcelize
 data class Track(
@@ -23,15 +24,18 @@ data class Track(
 
     fun getFormattedTime(): String {
         return if (trackTimeMillis != null) {
-            SimpleDateFormat("mm:ss", Locale.getDefault()).format(trackTimeMillis)
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(trackTimeMillis)
+            val seconds = TimeUnit.MILLISECONDS.toSeconds(trackTimeMillis) % 60
+            String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
         } else {
-            ""
+            "00:00"
         }
     }
 
     fun getHighResArtworkUrl(): String? {
         return artworkUrl100?.replace("100x100bb", "512x512bb")
     }
+
 
     fun getReleaseYear(): String? {
         return releaseDate?.take(4)

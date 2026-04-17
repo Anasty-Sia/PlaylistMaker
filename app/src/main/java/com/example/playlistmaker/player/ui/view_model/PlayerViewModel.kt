@@ -1,5 +1,6 @@
 package com.example.playlistmaker.player.ui.view_model
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,8 +12,10 @@ import com.example.playlistmaker.player.domain.model.PlaybackState
 import com.example.playlistmaker.player.service.PlayerService
 import com.example.playlistmaker.player.service.PlayerServiceConnector
 import com.example.playlistmaker.search.domain.model.Track
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class PlayerState(
     val playbackState: PlaybackState = PlaybackState.PREPARED,
@@ -42,6 +45,8 @@ class PlayerViewModel(
 
     private val _isLoadingPlaylists = MutableLiveData<Boolean>(false)
 
+    private val _showBottomSheet = MutableLiveData<Boolean>(false)
+    val showBottomSheet: LiveData<Boolean> = _showBottomSheet
 
     private var serviceConnector: PlayerServiceConnector? = null
     private var isAppInForeground = true
@@ -88,6 +93,8 @@ class PlayerViewModel(
         isAppInForeground = isForeground
         updateNotificationVisibility()
     }
+
+
 
     private fun handleNotificationBasedOnState(state: PlaybackState) {
         when (state) {
@@ -185,12 +192,17 @@ class PlayerViewModel(
         viewModelScope.launch {
             try {
                 val track = currentTrack ?: return@launch
-                val isFavorite = favoriteTracksInteractor.isTrackFavorite(track.trackId)
+
+                val isFavorite = withContext(Dispatchers.IO) {
+                    favoriteTracksInteractor.isTrackFavorite(track.trackId)
+                }
                 _playerState.value = PlayerState(
                     playbackState = PlaybackState.PREPARED,
                     isFavorite = isFavorite,
                     currentPosition = 0
                 )
+
+                delay(100)
                 serviceConnector?.preparePlayer()
             } catch (e: Exception) {
                 _playerState.value = PlayerState(
@@ -202,10 +214,12 @@ class PlayerViewModel(
     }
 
     fun playPause() {
+
         when (_playerState.value?.playbackState) {
             is PlaybackState.PLAYING -> pausePlayback()
             is PlaybackState.PREPARED, is PlaybackState.PAUSED, is PlaybackState.COMPLETED -> startPlayback()
-            else -> {}
+            else -> {
+             }
         }
     }
 
@@ -248,6 +262,20 @@ class PlayerViewModel(
 
     override fun onCleared() {
         super.onCleared()
+        serviceConnector?.stopPlayback()
+        serviceConnector = null
+    }
+
+    fun showPlaylistBottomSheet() {
+        loadPlaylists()
+        _showBottomSheet.value = true
+    }
+
+    fun hidePlaylistBottomSheet() {
+        _showBottomSheet.value = false
+    }
+
+    fun releasePlayer() {
         serviceConnector?.stopPlayback()
         serviceConnector = null
     }

@@ -47,7 +47,7 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-private const val ITUNES_BASE_URL = "https://itunes.apple.com"
+private const val ITUNES_BASE_URL = "https://itunes.apple.com/"
 
 val networkModule = module {
     single<Gson> { Gson() }
@@ -79,16 +79,11 @@ val dataModule = module {
     }
 
     single<SearchHistoryRepository> {
-        SearchHistoryRepositoryImpl(context = get(),gson = get(),
-            favoriteTracksRepository = get())
-    }
-
-    single<TrackRepository> {
-        TrackRepositoryImpl(get(), get(), get())  // Исправлено: передаем Gson и favoriteTracksRepository
-    }
-
-    single<SearchHistoryRepository> {
-        SearchHistoryRepositoryImpl(androidContext(), get(), get())  // Исправлен порядок параметров
+        SearchHistoryRepositoryImpl(
+            context = androidContext(),
+            gson = get(),
+            favoriteTracksRepository = get()
+        )
     }
 
 
@@ -155,6 +150,8 @@ val domainModule = module {
         PlaylistsInteractorImpl(get())
     }
 
+
+
 }
 
 val viewModelModule = module {
@@ -178,12 +175,25 @@ val viewModelModule = module {
         )
     }
 
-    viewModel { FavoriteTracksViewModel(favoriteTracksInteractor = get()) }
-    viewModel { PlaylistsViewModel(playlistsInteractor = get()) }
+    viewModel { FavoriteTracksViewModel(
+        favoriteTracksInteractor = get()) }
 
-    viewModel { PlaylistDetailsViewModel(playlistsInteractor = get(), get()) }
-    viewModel { (playlistId: Long) -> EditPlaylistViewModel(get(), playlistId) }
+    viewModel { PlaylistsViewModel(
+        playlistsInteractor = get()) }
 
+    viewModel { (playlistId: Long) ->
+        EditPlaylistViewModel(
+            playlistsInteractor = get(),
+            playlistId = playlistId
+        )
+    }
+
+    viewModel {
+        PlaylistDetailsViewModel(
+            playlistsInteractor = get(),
+            applicationContext = androidContext()
+        )
+    }
 
 }
 

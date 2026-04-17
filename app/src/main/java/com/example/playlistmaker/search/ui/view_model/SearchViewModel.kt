@@ -1,8 +1,7 @@
 package com.example.playlistmaker.search.ui.view_model
 
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.playlistmaker.search.domain.interactor.SearchHistoryInteractor
@@ -10,6 +9,10 @@ import com.example.playlistmaker.search.domain.interactor.SearchInteractor
 import com.example.playlistmaker.search.domain.model.Track
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
@@ -18,26 +21,29 @@ class SearchViewModel(
     private val searchHistoryInteractor: SearchHistoryInteractor
 ) : ViewModel() {
 
-    private val _searchState = MutableLiveData<SearchState>()
-    val searchState: LiveData<SearchState> = _searchState
+    private val _searchState = MutableStateFlow<SearchState>(SearchState.Default)
+    val searchState: StateFlow<SearchState> = _searchState.asStateFlow()
 
     private var searchJob: Job? = null
 
-    fun init() {
+    init {
         loadSearchHistory()
+        Log.d("SearchViewModel", "ViewModel created")
     }
 
 
     fun searchDebounced(query: String) {
         searchJob?.cancel()
+        Log.d("SearchViewModel", "searchDebounced: '$query'")
 
         if (query.isEmpty()) {
+            Log.d("SearchViewModel", "Empty query, loading history")
             loadSearchHistory()
             return
         }
 
         searchJob = viewModelScope.launch {
-            _searchState.postValue(SearchState.Loading)
+            _searchState.update {SearchState.Loading}
             delay(SEARCH_DEBOUNCE_DELAY)
             performSearch(query)
         }
@@ -45,16 +51,17 @@ class SearchViewModel(
 
     private suspend fun performSearch(query: String) {
         try {
-            searchInteractor.searchTracks(query)
-                .collect { tracks ->
-                    if (tracks.isEmpty()) {
-                        _searchState.postValue(SearchState.Empty("Ничего не найдено"))
-                    } else {
-                        _searchState.postValue(SearchState.Content(tracks))
-                    }
-                }
+            Log.d("SearchViewModel", "performSearch: '$query'")
+            val tracks = searchInteractor.searchTracks(query)
+            Log.d("SearchViewModel", "Received ${tracks.size} tracks")
+            if (tracks.isEmpty()) {
+                _searchState.value = SearchState.Empty("Ничего не найдено")
+            } else {
+                _searchState.value = SearchState.Content(tracks)
+            }
         } catch (e: Exception){
-            _searchState.postValue(SearchState.Error("Проверьте подключение к интернету"))
+            Log.e("SearchViewModel", "Search error", e)
+            _searchState.update { SearchState.Error("Проверьте подключение к интернету")}
         }
     }
 
@@ -66,22 +73,21 @@ class SearchViewModel(
 
     fun loadSearchHistory() {
         viewModelScope.launch {
-            searchHistoryInteractor.loadHistory()
-            searchHistoryInteractor.getSearchHistory()
-                .collect { history ->
-                    if (history.isNotEmpty()) {
-                        _searchState.postValue(SearchState.History(history))
-                    } else {
-                        _searchState.postValue(SearchState.Default)
-                    }
-                }
+            Log.d("SearchViewModel", "Loading search history")
+            val history = searchHistoryInteractor.loadHistoryAndGet()
+            Log.d("SearchViewModel", "History size: ${history.size}")
+            if (history.isNotEmpty()) {
+                _searchState.value = SearchState.History(history)
+            } else {
+                _searchState.value = SearchState.Default
+            }
         }
     }
 
     fun clearSearchHistory() {
         viewModelScope.launch {
             searchHistoryInteractor.clearSearchHistory()
-            _searchState.postValue(SearchState.Default)
+            _searchState.update { SearchState.Default}
         }
     }
 
