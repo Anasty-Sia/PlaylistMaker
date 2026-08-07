@@ -5,23 +5,19 @@
 ## Скриншоты
 
 ## Экран "Поиск"
-|-------|-------|
-| <img src="img/PL_1.png" width="300"> | <img src="img/PL_5.png" width="300"> |
+|<img src="img/PL_1.png" width="200">  <img src="img/PL_5.png" width="200"> 
 
 ## Экран "Медиатека" (Избранное и Плейлисты)
-![Экран происк](img/PL_4.png) 
-![Экран происк](img/PL_7.png)
+|<img src="img/PL_4.png" width="200">  <img src="img/PL_7.png" width="200">
 
 ## Экран "Аудиоплеер"
-![Экран происк](img/PL_2.png) 
-![Экран происк](img/PL_8.png)
+|<img src="img/PL_2.png" width="200">  <img src="img/PL_8.png" width="200">
 
 ## Экран "Настройки" (Темная тема)
 ![Экран происк](img/PL_6.png)
 
 ## Создание и редактирование плейлиста
-![Экран происк](img/PL_3.png) 
-![Экран происк](img/PL_9.png)
+|<img src="img/PL_3.png" width="200">  <img src="img/PL_9.png" width="200"> 
 
 ## Технологии
 *   **Язык:** Kotlin
